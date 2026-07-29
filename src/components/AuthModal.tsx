@@ -18,8 +18,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
   const [phone, setPhone] = useState('');
   const [organizationName, setOrganizationName] = useState('');
   const [defaultLanguage] = useState('en');
+  const [triggerPayment, setTriggerPayment] = useState(true);
   
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -27,27 +29,60 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
     setLoading(true);
 
     try {
       if (mode === 'login') {
         await login(username, password);
+        onClose();
       } else {
-        await register({
+        const res = await register({
           username,
           email,
           password,
           organization_name: organizationName,
           phone,
           default_language: defaultLanguage,
+          trigger_test_payment: triggerPayment,
         });
+
+        if (res?.payment_result) {
+          const pRes = res.payment_result;
+          setSuccessMsg(`Account created! MarzPay Mobile Money prompt triggered for ${pRes.amount} UGX to ${pRes.phone_number}. (Ref: ${pRes.reference})`);
+          setTimeout(() => {
+            onClose();
+          }, 3000);
+        } else {
+          onClose();
+        }
       }
-      onClose();
     } catch (err: any) {
-      const msg = err.response?.data?.detail || 
-                  err.response?.data?.non_field_errors?.[0] ||
-                  'Authentication failed. Please check your credentials.';
-      setError(typeof msg === 'string' ? msg : 'Error processing request.');
+      console.error('Auth error:', err);
+      let msg = '';
+      if (!err.response) {
+        msg = `Network connection error (${err.message || 'Failed to fetch'}). Please verify Django server is running on http://127.0.0.1:8000.`;
+      } else if (err.response.data) {
+        if (typeof err.response.data === 'string') {
+          msg = err.response.data;
+        } else if (err.response.data.detail) {
+          msg = err.response.data.detail;
+        } else if (err.response.data.non_field_errors) {
+          msg = err.response.data.non_field_errors[0];
+        } else {
+          const keys = Object.keys(err.response.data);
+          if (keys.length > 0) {
+            const firstKey = keys[0];
+            const val = err.response.data[firstKey];
+            msg = `${firstKey}: ${Array.isArray(val) ? val[0] : val}`;
+          } else {
+            msg = 'Authentication failed. Please check your inputs.';
+          }
+        }
+      } else {
+        msg = 'Authentication failed. Please check your credentials.';
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -70,6 +105,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
         <p className="text-xs text-slate-400 text-center mt-1">
           {mode === 'login' ? 'Sign in to access your dashboard' : 'Set up your community communication platform'}
         </p>
+
+        {successMsg && (
+          <div className="mt-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+            <span>{successMsg}</span>
+          </div>
+        )}
 
         {error && (
           <div className="mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
@@ -129,7 +170,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Host Phone Number (for Voice/USSD)</label>
+                <label className="block text-slate-300 font-medium mb-1">Host Phone Number (for MarzPay / Voice / USSD)</label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
                   <input
@@ -140,6 +181,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
                     className="w-full pl-9 pr-3 py-2.5 rounded-lg glass-input text-xs"
                   />
                 </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-start gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  id="triggerPayment"
+                  checked={triggerPayment}
+                  onChange={(e) => setTriggerPayment(e.target.checked)}
+                  className="mt-0.5 rounded border-slate-700 text-teal-500 focus:ring-teal-400"
+                />
+                <label htmlFor="triggerPayment" className="text-slate-300 text-xs cursor-pointer">
+                  <span className="font-semibold text-teal-400">Trigger 1,000 UGX MarzPay Test Payment</span>
+                  <br />
+                  <span className="text-[11px] text-slate-400">Sends a real Mobile Money USSD payment prompt to the provided phone number via MarzPay API upon registration.</span>
+                </label>
               </div>
             </>
           )}

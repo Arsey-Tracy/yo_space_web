@@ -15,7 +15,8 @@ interface AuthContextType {
     organization_name: string;
     phone?: string;
     default_language?: string;
-  }) => Promise<void>;
+    trigger_test_payment?: boolean;
+  }) => Promise<any>;
   logout: () => void;
   refreshOrg: () => Promise<void>;
 }
@@ -65,12 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     organization_name: string;
     phone?: string;
     default_language?: string;
+    trigger_test_payment?: boolean;
   }) => {
     const res = await apiClient.post('/auth/register/', data);
     localStorage.setItem('access_token', res.data.tokens.access);
     localStorage.setItem('refresh_token', res.data.tokens.refresh);
     setUser(res.data.user);
     setOrganization(res.data.organization);
+    return res.data;
   };
 
   const logout = () => {

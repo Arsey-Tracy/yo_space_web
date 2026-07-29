@@ -77,6 +77,34 @@ export const BillingPortal: React.FC = () => {
     }
   };
 
+  const handleTestMarzPayPayment = async () => {
+    if (!momoPhone) {
+      setMsg({ type: 'error', text: 'Please enter a Mobile Money phone number to trigger the 1000 UGX payment test.' });
+      return;
+    }
+    setMsg(null);
+    setLoading(true);
+    try {
+      const res = await apiClient.post('/billing/test-payment/', {
+        phone_number: momoPhone,
+        amount: 1000,
+        description: `1000 UGX MarzPay Test Payment for ${organization?.name || 'Yo-Spaces'}`
+      });
+      setMsg({
+        type: 'success',
+        text: res.data.message || '1,000 UGX MarzPay Mobile Money collection prompt triggered!'
+      });
+      setIsTopUpOpen(false);
+    } catch (err: any) {
+      setMsg({
+        type: 'error',
+        text: err.response?.data?.detail || err.response?.data?.message || 'Failed to trigger MarzPay test payment.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       
@@ -260,13 +288,24 @@ export const BillingPortal: React.FC = () => {
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-teal-500/20 hover:brightness-110 disabled:opacity-50 transition-all"
-              >
-                {loading ? 'Processing STK Push...' : 'Confirm Mobile Money Top-Up'}
-              </button>
+              <div className="space-y-2 pt-1">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-teal-500/20 hover:brightness-110 disabled:opacity-50 transition-all"
+                >
+                  {loading ? 'Processing Mobile Money...' : `Pay UGX ${selectedBundle ? Number(selectedBundle.price).toLocaleString() : 0}`}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleTestMarzPayPayment}
+                  disabled={loading}
+                  className="w-full py-2.5 rounded-xl border border-teal-500/40 text-teal-300 bg-teal-500/10 font-bold text-xs hover:bg-teal-500/20 disabled:opacity-50 transition-all"
+                >
+                  ⚡ Test 1,000 UGX MarzPay Payment Prompt
+                </button>
+              </div>
             </form>
           </div>
         </div>
