@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://127.0.0.1:8000';
+  }
+  return 'https://yo-space-2g.onrender.com';
+};
+
+const API_BASE = getBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE,
