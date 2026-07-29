@@ -3,6 +3,7 @@ import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { Subscription, SMSBundle } from '../types';
 import { Sparkles, Phone, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { PaymentVerificationModal } from './PaymentVerificationModal';
 
 export const BillingPortal: React.FC = () => {
   const { organization, refreshOrg } = useAuth();
@@ -77,6 +78,13 @@ export const BillingPortal: React.FC = () => {
     }
   };
 
+  const [verificationModal, setVerificationModal] = useState<{
+    phoneNumber: string;
+    amount: number;
+    reference: string;
+    organizationName?: string;
+  } | null>(null);
+
   const handleTestMarzPayPayment = async () => {
     if (!momoPhone) {
       setMsg({ type: 'error', text: 'Please enter a Mobile Money phone number to trigger the 1000 UGX payment test.' });
@@ -90,9 +98,12 @@ export const BillingPortal: React.FC = () => {
         amount: 1000,
         description: `1000 UGX MarzPay Test Payment for ${organization?.name || 'Yo-Spaces'}`
       });
-      setMsg({
-        type: 'success',
-        text: res.data.message || '1,000 UGX MarzPay Mobile Money collection prompt triggered!'
+      const pRes = res.data.marzpay_result;
+      setVerificationModal({
+        phoneNumber: momoPhone,
+        amount: 1000,
+        reference: pRes?.reference || 'MARZPAY-TEST-REF',
+        organizationName: organization?.name,
       });
       setIsTopUpOpen(false);
     } catch (err: any) {
@@ -309,6 +320,20 @@ export const BillingPortal: React.FC = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {verificationModal && (
+        <PaymentVerificationModal
+          isOpen={!!verificationModal}
+          paymentDetails={verificationModal}
+          onComplete={() => {
+            setVerificationModal(null);
+            setMsg({ type: 'success', text: 'Payment verified successfully!' });
+            refreshOrg();
+            fetchBillingData();
+          }}
+          onCancel={() => setVerificationModal(null)}
+        />
       )}
 
     </div>
