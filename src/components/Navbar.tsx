@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Radio, MessageSquare, Users, BarChart3, CreditCard, LogOut, User as UserIcon, Sparkles } from 'lucide-react';
+import { Radio, MessageSquare, Users, BarChart3, CreditCard, LogOut, User as UserIcon, Sparkles, PhoneCall, ShieldCheck, FileText } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -12,36 +12,38 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
   const { user, organization, isAuthenticated, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo */}
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab(isAuthenticated ? 'dashboard' : 'landing')}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-teal-500/20">
-            <Radio className="w-5 h-5 text-slate-950 font-bold" />
+          <div className="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center shadow-md shadow-blue-700/20">
+            <Radio className="w-5 h-5 text-white font-bold" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-teal-400 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-xl tracking-tight text-slate-900">
                 Yo-Spaces
               </span>
-              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-teal-500/20 text-teal-400 border border-teal-500/30 rounded">2G Voice & SMS</span>
+              <span className="px-2 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-md">
+                2G Voice & SMS
+              </span>
             </div>
             {organization && (
-              <p className="text-xs text-slate-400 font-medium">{organization.name}</p>
+              <p className="text-xs text-slate-500 font-medium">{organization.name}</p>
             )}
           </div>
         </div>
 
-        {/* Authenticated Navigation */}
+        {/* Navigation Tabs */}
         {isAuthenticated ? (
-          <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-xl border border-slate-800">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200">
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'dashboard'
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-md shadow-teal-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-blue-700 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <BarChart3 className="w-4 h-4" /> Overview
@@ -50,8 +52,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
               onClick={() => setActiveTab('spaces')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'spaces'
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-md shadow-teal-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-blue-700 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <Users className="w-4 h-4" /> Spaces
@@ -60,8 +62,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
               onClick={() => setActiveTab('broadcasts')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'broadcasts'
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-md shadow-teal-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-blue-700 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <MessageSquare className="w-4 h-4" /> Broadcasts
@@ -70,8 +72,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
               onClick={() => setActiveTab('surveys')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'surveys'
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-md shadow-teal-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-blue-700 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <Radio className="w-4 h-4" /> Surveys
@@ -80,19 +82,25 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
               onClick={() => setActiveTab('billing')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'billing'
-                  ? 'bg-teal-500 text-slate-950 font-semibold shadow-md shadow-teal-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-blue-700 text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               <CreditCard className="w-4 h-4" /> Billing
             </button>
           </nav>
         ) : (
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
-            <button onClick={() => setActiveTab('landing')} className="hover:text-teal-400 transition-colors">Features</button>
-            <button onClick={() => setActiveTab('landing')} className="hover:text-teal-400 transition-colors">How it Works</button>
-            <button onClick={() => setActiveTab('landing')} className="hover:text-teal-400 transition-colors">Pricing</button>
-            <button onClick={() => setActiveTab('landing')} className="hover:text-teal-400 transition-colors">FAQ</button>
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+            <button onClick={() => setActiveTab('landing')} className="hover:text-blue-700 transition-colors">Features</button>
+            <button onClick={() => setActiveTab('contact')} className="hover:text-blue-700 transition-colors flex items-center gap-1.5">
+              <PhoneCall className="w-3.5 h-3.5 text-blue-600" /> Contact Us
+            </button>
+            <button onClick={() => setActiveTab('privacy')} className="hover:text-blue-700 transition-colors flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> Privacy Policy
+            </button>
+            <button onClick={() => setActiveTab('terms')} className="hover:text-blue-700 transition-colors flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-blue-600" /> Terms
+            </button>
           </div>
         )}
 
@@ -101,26 +109,26 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
           {isAuthenticated && organization && (
             <div
               onClick={() => setActiveTab('billing')}
-              className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-950/40 border border-teal-500/30 hover:border-teal-500/60 transition-all"
+              className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all"
             >
-              <Sparkles className="w-4 h-4 text-teal-400 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
               <div className="text-xs">
-                <span className="text-slate-400 font-normal">SMS: </span>
-                <span className="font-bold text-teal-400">{organization.sms_balance.toLocaleString()}</span>
+                <span className="text-slate-500 font-medium">SMS Balance: </span>
+                <span className="font-bold text-blue-800">{organization.sms_balance.toLocaleString()}</span>
               </div>
             </div>
           )}
 
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">
-                <UserIcon className="w-3.5 h-3.5 text-teal-400" />
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800">
+                <UserIcon className="w-3.5 h-3.5 text-blue-700" />
                 <span>{user?.username}</span>
               </div>
               <button
                 onClick={logout}
                 title="Logout"
-                className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-900 border border-slate-800 transition-all"
+                className="p-2 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-all"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -129,13 +137,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenA
             <div className="flex items-center gap-2">
               <button
                 onClick={() => onOpenAuth('login')}
-                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-blue-700 transition-colors"
               >
                 Sign In
               </button>
               <button
                 onClick={() => onOpenAuth('register')}
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 shadow-md shadow-teal-500/20 hover:brightness-110 transition-all"
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-700 hover:bg-blue-800 text-white shadow-sm transition-all"
               >
                 Get Started
               </button>

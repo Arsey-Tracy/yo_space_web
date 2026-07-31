@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Space, Survey } from '../types';
-import { Plus, CheckCircle2, AlertCircle, X, ListPlus } from 'lucide-react';
+import { Plus, CheckCircle2, AlertCircle, X, ListPlus, Send, Radio } from 'lucide-react';
 
 export const SurveyBuilder: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -119,32 +119,43 @@ export const SurveyBuilder: React.FC = () => {
     }
   };
 
+  const handleSendSurveySMS = async () => {
+    if (!selectedSurvey) return;
+    setMsg(null);
+    try {
+      const res = await apiClient.post(`/surveys/${selectedSurvey.id}/send-sms/`);
+      setMsg({ type: 'success', text: res.data.message });
+    } catch (err) {
+      setMsg({ type: 'error', text: 'Failed to trigger survey SMS broadcast.' });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-slate-900">
       
       {/* Notifications */}
       {msg && (
         <div className={`p-4 rounded-xl text-xs flex items-center justify-between gap-3 ${
-          msg.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
+          msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
         }`}>
           <div className="flex items-center gap-2">
-            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
-            <span>{msg.text}</span>
+            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+            <span className="font-medium">{msg.text}</span>
           </div>
           <button onClick={() => setMsg(null)}><X className="w-4 h-4" /></button>
         </div>
       )}
 
       {/* Action Bar */}
-      <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white">Surveys & Polls</h2>
-          <p className="text-xs text-slate-400">Conduct interactive USSD & Web polls to collect community feedback.</p>
+          <h2 className="text-xl font-bold text-slate-900">Surveys & USSD Analytics</h2>
+          <p className="text-xs text-slate-500">Build interactive USSD & Web polls to collect community feedback in real-time.</p>
         </div>
 
         <button
           onClick={() => setIsCreateSurveyOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-teal-500/20 hover:brightness-110 transition-all"
+          className="px-4 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
         >
           <Plus className="w-4 h-4" /> Create Survey
         </button>
@@ -155,10 +166,10 @@ export const SurveyBuilder: React.FC = () => {
         
         {/* Survey Cards */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Surveys</h3>
+          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Surveys</h3>
 
           {!(Array.isArray(surveys) && surveys.length > 0) ? (
-            <div className="glass-panel p-8 text-center text-xs text-slate-500 rounded-2xl">
+            <div className="bg-white p-8 text-center text-xs text-slate-400 rounded-2xl border border-slate-200 shadow-xs">
               No surveys created yet. Click "Create Survey" to get started.
             </div>
           ) : (
@@ -166,22 +177,22 @@ export const SurveyBuilder: React.FC = () => {
               <div
                 key={s.id}
                 onClick={() => setSelectedSurvey(s)}
-                className={`p-4 rounded-xl cursor-pointer transition-all ${
+                className={`p-4 rounded-2xl cursor-pointer transition-all ${
                   selectedSurvey?.id === s.id
-                    ? 'glass-card border-2 border-teal-500/60 shadow-lg shadow-teal-500/10'
-                    : 'glass-card hover:border-slate-700'
+                    ? 'bg-white border-2 border-blue-600 shadow-md'
+                    : 'bg-white border border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-white text-xs">{s.title}</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-teal-500/10 text-teal-400 font-bold">
+                  <span className="font-bold text-slate-900 text-xs">{s.title}</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-blue-50 text-blue-800 font-bold border border-blue-200">
                     {s.questions?.length || 0} Qs
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">{s.description || 'No description'}</p>
-                <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500">
+                <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">{s.description || 'No description'}</p>
+                <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500 font-medium">
                   <span>Space: {s.space_name}</span>
-                  <span>{s.total_responses} Responses</span>
+                  <span className="font-bold text-blue-700">{s.total_responses} Responses</span>
                 </div>
               </div>
             ))
@@ -190,31 +201,39 @@ export const SurveyBuilder: React.FC = () => {
 
         {/* Analytics Breakdown */}
         {selectedSurvey && (
-          <div className="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-lg font-bold text-white">{selectedSurvey.title} Analytics</h3>
-                <p className="text-xs text-slate-400">Space: {selectedSurvey.space_name} • Total Responses: {selectedSurvey.total_responses}</p>
+                <h3 className="text-lg font-bold text-slate-900">{selectedSurvey.title}</h3>
+                <p className="text-xs text-slate-500">Space: {selectedSurvey.space_name} • Total Responses: {selectedSurvey.total_responses}</p>
               </div>
-              <button
-                onClick={() => setIsAddQuestionOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/30 text-xs font-bold flex items-center gap-1 hover:bg-teal-500/20"
-              >
-                <ListPlus className="w-4 h-4" /> Add Question
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSendSurveySMS}
+                  className="px-3.5 py-2 rounded-xl bg-blue-50 text-blue-800 border border-blue-200 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-100 transition"
+                >
+                  <Send className="w-3.5 h-3.5 text-blue-700" /> Dispatch SMS Prompt
+                </button>
+                <button
+                  onClick={() => setIsAddQuestionOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-blue-800 transition"
+                >
+                  <ListPlus className="w-4 h-4" /> Add Question
+                </button>
+              </div>
             </div>
 
             {!analyticsData?.questions_analytics || analyticsData.questions_analytics.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-xs">
-                No questions added to this survey yet. Click "Add Question" to build survey.
+              <div className="py-12 text-center text-slate-400 text-xs">
+                No questions added to this survey yet. Click "Add Question" to build your poll.
               </div>
             ) : (
               <div className="space-y-6">
                 {analyticsData.questions_analytics.map((q: any) => (
-                  <div key={q.question_id} className="p-4 rounded-xl glass-card space-y-3">
+                  <div key={q.question_id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-white text-xs">{q.question_text}</span>
-                      <span className="text-[10px] text-slate-400">{q.total_responses} answers</span>
+                      <span className="font-bold text-slate-900 text-xs">{q.question_text}</span>
+                      <span className="text-[10px] font-semibold text-slate-500">{q.total_responses} answers</span>
                     </div>
 
                     <div className="space-y-2 text-xs">
@@ -223,12 +242,12 @@ export const SurveyBuilder: React.FC = () => {
                         return (
                           <div key={choice} className="space-y-1">
                             <div className="flex items-center justify-between text-[11px]">
-                              <span className="text-slate-300 font-medium">{choice}</span>
-                              <span className="text-teal-400 font-bold">{count} ({pct}%)</span>
+                              <span className="text-slate-700 font-semibold">{choice}</span>
+                              <span className="text-blue-800 font-bold">{count} ({pct}%)</span>
                             </div>
-                            <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden border border-slate-300">
                               <div
-                                className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-500"
+                                className="bg-blue-700 h-full rounded-full transition-all duration-500"
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
@@ -247,17 +266,17 @@ export const SurveyBuilder: React.FC = () => {
 
       {/* Create Survey Modal */}
       {isCreateSurveyOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative">
-            <h3 className="text-lg font-bold text-white mb-4">Create New Survey</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Create New Survey</h3>
             <form onSubmit={handleCreateSurvey} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Target Space *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Target Space *</label>
                 <select
                   required
                   value={selectedSpaceId}
                   onChange={(e) => setSelectedSpaceId(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                 >
                   {(Array.isArray(spaces) ? spaces : []).map((sp) => (
                     <option key={sp.id} value={sp.id}>{sp.name}</option>
@@ -266,33 +285,33 @@ export const SurveyBuilder: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Survey Title *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Survey Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Maize Crop Health Poll"
                   value={surveyTitle}
                   onChange={(e) => setSurveyTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Description</label>
+                <label className="block text-slate-700 font-semibold mb-1">Description</label>
                 <textarea
                   placeholder="Purpose of this poll..."
                   value={surveyDesc}
                   onChange={(e) => setSurveyDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                   rows={2}
                 />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsCreateSurveyOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsCreateSurveyOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-teal-500 text-slate-950 font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold">
                   Create Survey
                 </button>
               </div>
@@ -303,28 +322,28 @@ export const SurveyBuilder: React.FC = () => {
 
       {/* Add Question Modal */}
       {isAddQuestionOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative">
-            <h3 className="text-lg font-bold text-white mb-4">Add Question</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Add Question</h3>
             <form onSubmit={handleAddQuestion} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Question Text *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Question Text *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Have you received fertilizer distribution?"
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Question Type</label>
+                <label className="block text-slate-700 font-semibold mb-1">Question Type</label>
                 <select
                   value={questionType}
                   onChange={(e: any) => setQuestionType(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                 >
                   <option value="multiple_choice">Multiple Choice</option>
                   <option value="text">Free Text</option>
@@ -334,23 +353,23 @@ export const SurveyBuilder: React.FC = () => {
 
               {questionType === 'multiple_choice' && (
                 <div>
-                  <label className="block text-slate-300 mb-1">Choices (Comma Separated) *</label>
+                  <label className="block text-slate-700 font-semibold mb-1">Choices (Comma Separated) *</label>
                   <input
                     type="text"
                     required
                     placeholder="Yes, No, Partially"
                     value={optionsString}
                     onChange={(e) => setOptionsString(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                   />
                 </div>
               )}
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddQuestionOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsAddQuestionOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-teal-500 text-slate-950 font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold">
                   Save Question
                 </button>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
@@ -10,14 +10,51 @@ import { SpaceManager } from './components/SpaceManager';
 import { BroadcastStudio } from './components/BroadcastStudio';
 import { SurveyBuilder } from './components/SurveyBuilder';
 import { BillingPortal } from './components/BillingPortal';
+import { ContactPage } from './components/ContactPage';
+import { PrivacyPage } from './components/PrivacyPage';
+import { TermsPage } from './components/TermsPage';
+import { PaymentVerificationModal } from './components/PaymentVerificationModal';
 
 type DashboardTab = 'dashboard' | 'spaces' | 'broadcasts' | 'surveys' | 'billing';
+type PublicTab = 'landing' | 'contact' | 'privacy' | 'terms';
 
 const DASHBOARD_TABS: DashboardTab[] = ['dashboard', 'spaces', 'broadcasts', 'surveys', 'billing'];
 
+const ROUTE_PATH_MAP: Record<string, string> = {
+  landing: '/',
+  dashboard: '/dashboard',
+  spaces: '/spaces',
+  broadcasts: '/broadcasts',
+  surveys: '/surveys',
+  billing: '/billing',
+  contact: '/contact',
+  privacy: '/privacy',
+  terms: '/terms',
+};
+
+const PATH_ROUTE_MAP: Record<string, string> = {
+  '/': 'landing',
+  '/dashboard': 'dashboard',
+  '/spaces': 'spaces',
+  '/broadcasts': 'broadcasts',
+  '/surveys': 'surveys',
+  '/billing': 'billing',
+  '/contact': 'contact',
+  '/privacy': 'privacy',
+  '/terms': 'terms',
+};
+
 const AppContent: React.FC = () => {
-  const { isAuthenticated, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>('landing');
+  const { isAuthenticated, loading, organization } = useAuth();
+  
+  // Route state initialized from URL location
+  const getInitialTab = (): string => {
+    const path = window.location.pathname;
+    return PATH_ROUTE_MAP[path] || 'landing';
+  };
+
+  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
@@ -26,27 +63,58 @@ const AppContent: React.FC = () => {
     mode: 'login',
   });
 
-  // Track which dashboard tabs have been visited (lazy-mount)
+  // Track Payment Verification Gate
+  const [paymentVerificationGate, setPaymentVerificationGate] = useState<{
+    phoneNumber: string;
+    amount: number;
+    reference: string;
+    organizationName?: string;
+  } | null>(null);
+
+  // Lazy-mount visited dashboard tabs
   const [mountedTabs, setMountedTabs] = useState<Set<DashboardTab>>(new Set());
   const prevAuth = useRef(isAuthenticated);
 
-  // Auto-switch to dashboard on login, reset to landing on logout
-  React.useEffect(() => {
+  // Sync route changes with HTML5 browser history (pushState & popstate)
+  const navigateToTab = useCallback((tab: string, replace: boolean = false) => {
+    setActiveTab(tab);
+    const targetPath = ROUTE_PATH_MAP[tab] || '/';
+    if (window.location.pathname !== targetPath) {
+      if (replace) {
+        window.history.replaceState({ tab }, '', targetPath);
+      } else {
+        window.history.pushState({ tab }, '', targetPath);
+      }
+    }
+  }, []);
+
+  // Listen for browser Back/Forward popstate events
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentTab = PATH_ROUTE_MAP[window.location.pathname] || 'landing';
+      setActiveTab(currentTab);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Auto-switch to dashboard on login or landing on logout
+  useEffect(() => {
     if (isAuthenticated && !prevAuth.current) {
-      // Just logged in
-      setActiveTab('dashboard');
-      setMountedTabs(new Set(['dashboard']));
+      const currentTab = PATH_ROUTE_MAP[window.location.pathname] || 'dashboard';
+      const targetTab = DASHBOARD_TABS.includes(currentTab as DashboardTab) ? currentTab : 'dashboard';
+      navigateToTab(targetTab, true);
+      setMountedTabs(new Set([targetTab as DashboardTab]));
     }
     if (!isAuthenticated && prevAuth.current) {
-      // Just logged out — reset everything
-      setActiveTab('landing');
+      navigateToTab('landing', true);
       setMountedTabs(new Set());
     }
     prevAuth.current = isAuthenticated;
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigateToTab]);
 
-  // Whenever a dashboard tab is activated, mark it as mounted
-  React.useEffect(() => {
+  // Mark visited dashboard tabs as mounted
+  useEffect(() => {
     if (isAuthenticated && DASHBOARD_TABS.includes(activeTab as DashboardTab)) {
       setMountedTabs((prev) => {
         if (prev.has(activeTab as DashboardTab)) return prev;
@@ -59,31 +127,50 @@ const AppContent: React.FC = () => {
 
   const handleTabChange = useCallback(
     (tab: string) => {
-      if (!isAuthenticated && tab !== 'landing') {
+      if (!isAuthenticated && DASHBOARD_TABS.includes(tab as DashboardTab)) {
         setAuthModal({ isOpen: true, mode: 'login' });
         return;
       }
-      setActiveTab(tab);
+
+      // Check Payment Verification Gate for protected workspace routes
+      if (isAuthenticated && DASHBOARD_TABS.includes(tab as DashboardTab)) {
+        const isVerified = localStorage.getItem('payment_verified') === 'true';
+        const hasBalance = (organization?.sms_balance ?? 0) > 0;
+        
+        if (!isVerified && !hasBalance && tab !== 'billing') {
+          setPaymentVerificationGate({
+            phoneNumber: organization?.owner?.phone || '+256700000000',
+            amount: 1000,
+            reference: 'MOMO-ACCESS-GATE',
+            organizationName: organization?.name,
+          });
+          return;
+        }
+      }
+
+      navigateToTab(tab);
       setMobileSidebarOpen(false);
     },
-    [isAuthenticated]
+    [isAuthenticated, organization, navigateToTab]
   );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 animate-pulse shadow-lg shadow-teal-500/20" />
-          <p className="text-slate-400 text-xs font-semibold tracking-wide animate-pulse">Loading Yo-Spaces Engine...</p>
+          <div className="w-12 h-12 rounded-2xl bg-blue-700 animate-pulse shadow-lg shadow-blue-700/20" />
+          <p className="text-slate-600 text-xs font-bold tracking-wide animate-pulse">
+            Loading Yo-Spaces Engine...
+          </p>
         </div>
       </div>
     );
   }
 
-  const showDashboard = isAuthenticated && activeTab !== 'landing';
+  const showDashboard = isAuthenticated && DASHBOARD_TABS.includes(activeTab as DashboardTab);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans selection:bg-teal-500 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-blue-700 selection:text-white overflow-x-hidden">
       
       {/* Authenticated Dashboard Layout with Sidebar */}
       {showDashboard ? (
@@ -103,7 +190,7 @@ const AppContent: React.FC = () => {
           {mobileSidebarOpen && (
             <div className="fixed inset-0 z-50 flex md:hidden">
               <div
-                className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+                className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
                 onClick={() => setMobileSidebarOpen(false)}
               />
               <div className="relative z-10">
@@ -118,15 +205,17 @@ const AppContent: React.FC = () => {
           )}
 
           {/* Main Dashboard Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-950">
-            {/* Top Header Bar with Account Avatar & Page Title */}
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50">
+            {/* Top Header Bar */}
             <TopHeader
               activeTab={activeTab}
               onNavigate={handleTabChange}
               onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
+              selectedLanguage={selectedLanguage}
+              onSelectLanguage={setSelectedLanguage}
             />
 
-            {/* Dashboard Workspace */}
+            {/* Dashboard Workspace Panels */}
             <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
               {mountedTabs.has('dashboard') && (
                 <div className={activeTab === 'dashboard' ? 'tab-panel-active' : 'tab-panel-hidden'}>
@@ -158,7 +247,7 @@ const AppContent: React.FC = () => {
 
         </div>
       ) : (
-        /* Non-Authenticated / Landing Page Layout */
+        /* Public Pages & Landing Layout */
         <div className="flex-1 flex flex-col min-h-screen">
           <Navbar
             activeTab={activeTab}
@@ -166,7 +255,15 @@ const AppContent: React.FC = () => {
             onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })}
           />
           <main className="flex-1">
-            <LandingPage onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} />
+            {activeTab === 'contact' ? (
+              <ContactPage onNavigate={handleTabChange} onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} />
+            ) : activeTab === 'privacy' ? (
+              <PrivacyPage onNavigate={handleTabChange} />
+            ) : activeTab === 'terms' ? (
+              <TermsPage onNavigate={handleTabChange} />
+            ) : (
+              <LandingPage onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} onNavigate={handleTabChange} />
+            )}
           </main>
         </div>
       )}
@@ -178,6 +275,22 @@ const AppContent: React.FC = () => {
         onClose={() => setAuthModal({ ...authModal, isOpen: false })}
         onSwitchMode={(mode) => setAuthModal({ isOpen: true, mode })}
       />
+
+      {/* Payment Verification Access Gate */}
+      {paymentVerificationGate && (
+        <PaymentVerificationModal
+          isOpen={!!paymentVerificationGate}
+          paymentDetails={paymentVerificationGate}
+          onComplete={() => {
+            localStorage.setItem('payment_verified', 'true');
+            setPaymentVerificationGate(null);
+          }}
+          onCancel={() => {
+            setPaymentVerificationGate(null);
+            navigateToTab('landing');
+          }}
+        />
+      )}
     </div>
   );
 };

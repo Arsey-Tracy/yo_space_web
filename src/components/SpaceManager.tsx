@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Space, SpaceMember } from '../types';
-import { Plus, Upload, Download, PhoneCall, GitMerge, Search, Trash2, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { Plus, Upload, Download, PhoneCall, GitMerge, Search, Trash2, AlertCircle, CheckCircle2, X, Users, Building2 } from 'lucide-react';
 
 export const SpaceManager: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -174,32 +174,32 @@ export const SpaceManager: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans text-slate-900">
       
       {/* Notifications */}
       {msg && (
         <div className={`p-4 rounded-xl text-xs flex items-center justify-between gap-3 ${
-          msg.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
+          msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
         }`}>
           <div className="flex items-center gap-2">
-            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-rose-400" />}
-            <span>{msg.text}</span>
+            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertCircle className="w-4 h-4 text-rose-600" />}
+            <span className="font-medium">{msg.text}</span>
           </div>
           <button onClick={() => setMsg(null)}><X className="w-4 h-4" /></button>
         </div>
       )}
 
       {/* Spaces Selector & Action Bar */}
-      <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white">Community Spaces</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Manage your organization's spaces and feature phone member lists.</p>
+          <h2 className="text-xl font-bold text-slate-900">Community Spaces</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Manage your organization's 2G voice spaces and member contact lists.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsCreateSpaceOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-teal-500/20 hover:brightness-110 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition"
           >
             <Plus className="w-4 h-4" /> Create Space
           </button>
@@ -208,15 +208,15 @@ export const SpaceManager: React.FC = () => {
             <>
               <button
                 onClick={handleGoLive}
-                className="px-3.5 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-1.5 hover:bg-emerald-500/30 transition-all"
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center gap-1.5 hover:bg-emerald-100 transition"
               >
-                <PhoneCall className="w-4 h-4 text-emerald-400" /> Go Live Call
+                <PhoneCall className="w-4 h-4 text-emerald-700" /> Go Live Call
               </button>
               <button
                 onClick={() => setIsMergeOpen(true)}
-                className="px-3.5 py-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs flex items-center gap-1.5 hover:bg-purple-500/30 transition-all"
+                className="px-3.5 py-2.5 rounded-xl bg-purple-50 text-purple-800 border border-purple-200 font-bold text-xs flex items-center gap-1.5 hover:bg-purple-100 transition"
               >
-                <GitMerge className="w-4 h-4 text-purple-400" /> Merge Space
+                <GitMerge className="w-4 h-4 text-purple-700" /> Merge Space
               </button>
             </>
           )}
@@ -231,12 +231,12 @@ export const SpaceManager: React.FC = () => {
             onClick={() => setSelectedSpace(sp)}
             className={`px-4 py-2.5 rounded-xl text-xs font-semibold shrink-0 transition-all flex items-center gap-2.5 ${
               selectedSpace?.id === sp.id
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'glass-card text-slate-300 hover:border-slate-700'
+                ? 'bg-blue-700 text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             <span>{sp.name}</span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-950/40 text-[10px] opacity-80">
+            <span className="px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 text-[10px] font-bold border border-blue-200">
               PIN: {sp.pin}
             </span>
           </button>
@@ -245,36 +245,36 @@ export const SpaceManager: React.FC = () => {
 
       {/* Selected Space Content */}
       {selectedSpace ? (
-        <div className="glass-panel p-6 rounded-2xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white">{selectedSpace.name}</h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                  PIN: {selectedSpace.pin}
+                <h3 className="text-lg font-bold text-slate-900">{selectedSpace.name}</h3>
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                  Voice PIN: {selectedSpace.pin}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">{selectedSpace.description || 'No description added.'}</p>
+              <p className="text-xs text-slate-500 mt-1">{selectedSpace.description || 'No description added.'}</p>
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsAddMemberOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/30 text-xs font-bold flex items-center gap-1 hover:bg-teal-500/20"
+                className="px-3.5 py-2 rounded-xl bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs hover:bg-blue-800 transition"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Member
+                <Plus className="w-4 h-4" /> Add Member
               </button>
               <button
                 onClick={() => setIsImportCsvOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium flex items-center gap-1 hover:bg-slate-800"
+                className="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-200/80 transition"
               >
-                <Upload className="w-3.5 h-3.5 text-emerald-400" /> Import CSV
+                <Upload className="w-3.5 h-3.5 text-blue-700" /> Import CSV
               </button>
               <button
                 onClick={handleExportCsv}
-                className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium flex items-center gap-1 hover:bg-slate-800"
+                className="px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-200/80 transition"
               >
-                <Download className="w-3.5 h-3.5 text-cyan-400" /> Export CSV
+                <Download className="w-3.5 h-3.5 text-blue-700" /> Export CSV
               </button>
             </div>
           </div>
@@ -282,22 +282,22 @@ export const SpaceManager: React.FC = () => {
           {/* Members Table Filter & Search */}
           <div className="flex items-center justify-between gap-4">
             <div className="relative w-full max-w-xs">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 placeholder="Search member name or phone..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-lg glass-input text-xs"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
               />
             </div>
-            <span className="text-xs text-slate-400">Total: {filteredMembers.length} members</span>
+            <span className="text-xs text-slate-500 font-medium">Total: {filteredMembers.length} members</span>
           </div>
 
           {/* Members Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-900/60 text-slate-400 border-b border-slate-800 uppercase text-[10px] tracking-wider">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase text-[10px] tracking-wider font-semibold">
                 <tr>
                   <th className="py-3 px-4">Member Name</th>
                   <th className="py-3 px-4">Phone Number</th>
@@ -306,31 +306,31 @@ export const SpaceManager: React.FC = () => {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {filteredMembers.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-slate-500">
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
                       No members in this space yet. Use "Add Member" or "Import CSV" to populate contacts.
                     </td>
                   </tr>
                 ) : (
                   filteredMembers.map((m) => (
-                    <tr key={m.id} className="hover:bg-slate-900/40">
-                      <td className="py-3 px-4 font-semibold text-white">{m.name || 'Unnamed'}</td>
-                      <td className="py-3 px-4 font-mono text-teal-400">{m.phone_number}</td>
+                    <tr key={m.id} className="hover:bg-slate-50">
+                      <td className="py-3 px-4 font-bold text-slate-900">{m.name || 'Unnamed'}</td>
+                      <td className="py-3 px-4 font-mono text-blue-700 font-semibold">{m.phone_number}</td>
                       <td className="py-3 px-4">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          m.role === 'admin' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
-                          m.role === 'communications' ? 'bg-teal-500/10 text-teal-400' : 'bg-slate-800 text-slate-400'
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                          m.role === 'admin' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                          m.role === 'communications' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
                         }`}>
                           {m.role}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-slate-400">{new Date(m.joined_at).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-slate-500">{new Date(m.joined_at).toLocaleDateString()}</td>
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => handleDeleteMember(m.id)}
-                          className="p-1.5 rounded hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
+                          className="p-1.5 rounded hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -344,17 +344,17 @@ export const SpaceManager: React.FC = () => {
 
         </div>
       ) : (
-        <div className="glass-panel p-12 text-center rounded-2xl space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center mx-auto border border-teal-500/20">
+        <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mx-auto border border-blue-100">
             <Plus className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-white">No Spaces Created Yet</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            You don't have any active spaces in your organization. Click below to create your first community space!
+          <h3 className="text-lg font-bold text-slate-900">No Spaces Created Yet</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            You don't have any active spaces in your organization. Create a space to organize your members.
           </p>
           <button
             onClick={() => setIsCreateSpaceOpen(true)}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-teal-500/20 hover:brightness-110 transition-all inline-flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-sm transition inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Create Your First Space
           </button>
@@ -363,36 +363,36 @@ export const SpaceManager: React.FC = () => {
 
       {/* Create Space Modal */}
       {isCreateSpaceOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative">
-            <h3 className="text-lg font-bold text-white mb-4">Create New Space</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Create New Space</h3>
             <form onSubmit={handleCreateSpace} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Space Name *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Space Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Health Volunteers"
                   value={newSpaceName}
                   onChange={(e) => setNewSpaceName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
                 />
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Description</label>
+                <label className="block text-slate-700 font-semibold mb-1">Description</label>
                 <textarea
                   placeholder="Brief description of the space..."
                   value={newSpaceDesc}
                   onChange={(e) => setNewSpaceDesc(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
                   rows={3}
                 />
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsCreateSpaceOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsCreateSpaceOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-teal-500 text-slate-950 font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold">
                   Create Space
                 </button>
               </div>
@@ -403,37 +403,37 @@ export const SpaceManager: React.FC = () => {
 
       {/* Add Member Modal */}
       {isAddMemberOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative">
-            <h3 className="text-lg font-bold text-white mb-4">Add Member to {selectedSpace?.name}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Add Member to {selectedSpace?.name}</h3>
             <form onSubmit={handleAddMember} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Phone Number *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Phone Number *</label>
                 <input
                   type="text"
                   required
                   placeholder="+256700000000"
                   value={memberPhone}
                   onChange={(e) => setMemberPhone(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
                 />
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Member Name</label>
+                <label className="block text-slate-700 font-semibold mb-1">Member Name</label>
                 <input
                   type="text"
                   placeholder="Full Name"
                   value={memberName}
                   onChange={(e) => setMemberName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
                 />
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Role</label>
+                <label className="block text-slate-700 font-semibold mb-1">Role</label>
                 <select
                   value={memberRole}
                   onChange={(e: any) => setMemberRole(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white text-xs"
                 >
                   <option value="member">Member</option>
                   <option value="secretary">Secretary</option>
@@ -442,10 +442,10 @@ export const SpaceManager: React.FC = () => {
                 </select>
               </div>
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsAddMemberOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsAddMemberOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-teal-500 text-slate-950 font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold">
                   Add Member
                 </button>
               </div>
@@ -456,11 +456,11 @@ export const SpaceManager: React.FC = () => {
 
       {/* CSV Import Modal */}
       {isImportCsvOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative space-y-4">
-            <h3 className="text-lg font-bold text-white">Import Members CSV</h3>
-            <p className="text-xs text-slate-400">
-              CSV file must contain columns: <code className="text-teal-400">name</code>, <code className="text-teal-400">phone_number</code>, <code className="text-teal-400">role</code>.
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Import Members CSV</h3>
+            <p className="text-xs text-slate-500">
+              CSV file must contain columns: <code className="text-blue-700 font-bold">name</code>, <code className="text-blue-700 font-bold">phone_number</code>, <code className="text-blue-700 font-bold">role</code>.
             </p>
 
             <form onSubmit={handleImportCsv} className="space-y-4 text-xs">
@@ -469,14 +469,14 @@ export const SpaceManager: React.FC = () => {
                 accept=".csv"
                 required
                 onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
-                className="w-full p-3 rounded-lg glass-input text-xs"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs"
               />
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsImportCsvOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsImportCsvOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
                   Upload & Import
                 </button>
               </div>
@@ -487,21 +487,21 @@ export const SpaceManager: React.FC = () => {
 
       {/* Merge Space Modal */}
       {isMergeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md p-6 rounded-2xl relative space-y-4">
-            <h3 className="text-lg font-bold text-white">Merge Space '{selectedSpace?.name}'</h3>
-            <p className="text-xs text-slate-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl border border-slate-200 shadow-2xl relative space-y-4">
+            <h3 className="text-lg font-bold text-slate-900">Merge Space '{selectedSpace?.name}'</h3>
+            <p className="text-xs text-slate-500">
               Combine members of '{selectedSpace?.name}' into another space. (Pro & Premium feature).
             </p>
 
             <form onSubmit={handleMergeSpaces} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Target Space *</label>
+                <label className="block text-slate-700 font-semibold mb-1">Target Space *</label>
                 <select
                   required
                   value={targetMergeSpaceId}
                   onChange={(e) => setTargetMergeSpaceId(Number(e.target.value))}
-                  className="w-full px-3 py-2 rounded-lg glass-input text-xs"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
                 >
                   <option value="">Select Target Space...</option>
                   {safeSpaces.filter((s) => s.id !== selectedSpace?.id).map((s) => (
@@ -511,10 +511,10 @@ export const SpaceManager: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setIsMergeOpen(false)} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                <button type="button" onClick={() => setIsMergeOpen(false)} className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-medium">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 rounded-lg bg-purple-500 text-white font-bold">
+                <button type="submit" className="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold">
                   Confirm Merge
                 </button>
               </div>
