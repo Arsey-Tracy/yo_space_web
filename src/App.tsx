@@ -16,7 +16,6 @@ import { TermsPage } from './components/TermsPage';
 import { PaymentVerificationModal } from './components/PaymentVerificationModal';
 
 type DashboardTab = 'dashboard' | 'spaces' | 'broadcasts' | 'surveys' | 'billing';
-type PublicTab = 'landing' | 'contact' | 'privacy' | 'terms';
 
 const DASHBOARD_TABS: DashboardTab[] = ['dashboard', 'spaces', 'broadcasts', 'surveys', 'billing'];
 
@@ -256,11 +255,11 @@ const AppContent: React.FC = () => {
           />
           <main className="flex-1">
             {activeTab === 'contact' ? (
-              <ContactPage onNavigate={handleTabChange} onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} />
+              <ContactPage />
             ) : activeTab === 'privacy' ? (
-              <PrivacyPage onNavigate={handleTabChange} />
+              <PrivacyPage />
             ) : activeTab === 'terms' ? (
-              <TermsPage onNavigate={handleTabChange} />
+              <TermsPage />
             ) : (
               <LandingPage onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} onNavigate={handleTabChange} />
             )}

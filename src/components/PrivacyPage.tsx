@@ -1,11 +1,10 @@
 import React from 'react';
-import { ShieldCheck, Lock, Eye, FileText, Database, PhoneCall, Check } from 'lucide-react';
+import { ShieldCheck, Lock, Eye, FileText, Database, Check } from 'lucide-react';
 
 interface PrivacyPageProps {
-  onNavigate?: (tab: string) => void;
 }
 
-export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
+export const PrivacyPage: React.FC<PrivacyPageProps> = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Hero Header */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Space, SpaceMember } from '../types';
-import { Plus, Upload, Download, PhoneCall, GitMerge, Search, Trash2, AlertCircle, CheckCircle2, X, Users, Building2 } from 'lucide-react';
+import { Plus, Upload, Download, PhoneCall, GitMerge, Search, Trash2, AlertCircle, CheckCircle2, X } from 'lucide-react';
 
 export const SpaceManager: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([]);

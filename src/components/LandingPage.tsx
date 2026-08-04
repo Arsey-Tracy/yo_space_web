@@ -1,5 +1,6 @@
-import React from 'react';
-import { PhoneCall, MessageSquare, Radio, Zap, ArrowRight, CheckCircle2, ShieldCheck, Globe, Building2, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import { PhoneCall, MessageSquare, Radio, Zap, ArrowRight, CheckCircle2, Globe, Building2, Calculator, Wallet, Coins } from 'lucide-react';
+import { PayAsYouGoModal } from './PayAsYouGoModal';
 
 interface LandingPageProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -7,12 +8,15 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate }) => {
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 bg-gradient-to-b from-blue-900 via-blue-900 to-indigo-950 text-white overflow-hidden">
+      <section className="relative pt-16 pb-24 bg-cover bg-center" style={{ backgroundImage: "url('/hero_graphic.png')" }}>
+        <div className="absolute inset-0 bg-black/65" aria-hidden="true"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          
+
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold mb-8">
             <Zap className="w-3.5 h-3.5 text-blue-400" /> Enterprise-Grade 2G Voice, SMS & USSD Platform for Organizations
           </div>
@@ -105,88 +109,171 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Pay-As-You-Go Pricing Section */}
+      <section className="py-20 bg-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-extrabold text-slate-900">Flexible Subscription Plans</h2>
-            <p className="text-slate-600 mt-3 text-sm">Transparent pricing in UGX tailored to organizations and cooperatives of all sizes.</p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            {/* Standard */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-xs">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Standard</h3>
-                <p className="text-3xl font-extrabold text-blue-700 mt-3">UGX 200k<span className="text-xs text-slate-500 font-normal">/mo</span></p>
-                <ul className="mt-6 space-y-3 text-xs text-slate-600">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 1 Active Space</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 100 Members max</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 1,000 Bulk SMS/mo</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Dashboard Access</li>
-                </ul>
-              </div>
-              <button onClick={() => onOpenAuth('register')} className="mt-8 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition">
-                Choose Standard
-              </button>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-semibold mb-4">
+              <Coins className="w-3.5 h-3.5 text-emerald-400" /> Pure Pay-As-You-Go Model
             </div>
-
-            {/* Pro */}
-            <div className="bg-white p-6 rounded-2xl border-2 border-blue-600 relative flex flex-col justify-between shadow-md">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-700 text-white font-bold text-[10px] uppercase tracking-wider">
-                Recommended
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Pro</h3>
-                <p className="text-3xl font-extrabold text-blue-700 mt-3">UGX 350k<span className="text-xs text-slate-500 font-normal">/mo</span></p>
-                <ul className="mt-6 space-y-3 text-xs text-slate-600">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 3 Active Spaces</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 300 Members/space</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 3,000 Bulk SMS/mo</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Merge Spaces Feature</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> African Language API</li>
-                </ul>
-              </div>
-              <button onClick={() => onOpenAuth('register')} className="mt-8 w-full py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs transition shadow-sm">
-                Choose Pro
-              </button>
-            </div>
-
-            {/* Premium */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-xs">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Premium</h3>
-                <p className="text-3xl font-extrabold text-blue-700 mt-3">UGX 500k<span className="text-xs text-slate-500 font-normal">/mo</span></p>
-                <ul className="mt-6 space-y-3 text-xs text-slate-600">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 10 Active Spaces</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 1,000 Members/space</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> 10,000 Bulk SMS/mo</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> USSD Survey Builder</li>
-                </ul>
-              </div>
-              <button onClick={() => onOpenAuth('register')} className="mt-8 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition">
-                Choose Premium
-              </button>
-            </div>
-
-            {/* Enterprise */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-xs">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Enterprise</h3>
-                <p className="text-2xl font-bold text-slate-800 mt-3">Custom</p>
-                <ul className="mt-6 space-y-3 text-xs text-slate-600">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Unlimited Spaces</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Dedicated Account Desk</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-blue-600" /> Custom Sender ID (v2)</li>
-                </ul>
-              </div>
-              <button onClick={() => onNavigate ? onNavigate('contact') : onOpenAuth('register')} className="mt-8 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition">
-                Contact Sales
-              </button>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Transparent Network Pricing</h2>
+            <p className="text-slate-300 mt-4 text-base leading-relaxed">
+              No monthly subscription fees, hidden charges, or expiring credits. Deposit funds into your organization’s prepaid wallet and pay strictly per SMS sent.
+            </p>
+            <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm font-semibold">
+              <Globe className="w-4 h-4 text-blue-400" />
+              Broadcast to MTN, Airtel & all other networks in a single campaign
             </div>
           </div>
+
+          {/* Network Rate Cards */}
+          <div className="grid md:grid-cols-3 gap-8 items-stretch mb-12">
+
+            {/* MTN Rate */}
+            <div className="bg-slate-800/80 p-8 rounded-2xl border border-slate-700 hover:border-amber-400/50 transition-all flex flex-col justify-between shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-bold text-xs">MTN Local Traffic</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">MTN Uganda</h3>
+                <div className="my-6">
+                  <span className="text-4xl font-extrabold text-amber-400 font-mono">UGX 40</span>
+                  <span className="text-xs text-slate-400 ml-2">/ unique SMS</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Fixed Markup: +13 UGX</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Instant Local Delivery Rate</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Automatic Recipient Deduplication</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setIsCalculatorOpen(true)}
+                className="mt-8 w-full py-3 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 font-bold text-xs transition border border-amber-400/30 flex items-center justify-center gap-2"
+              >
+                <Calculator className="w-4 h-4" /> Estimate MTN Cost
+              </button>
+            </div>
+
+            {/* Airtel Rate */}
+            <div className="bg-slate-800/80 p-8 rounded-2xl border-2 border-blue-500 relative flex flex-col justify-between shadow-2xl">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-blue-600 text-white font-bold text-[10px] uppercase tracking-wider shadow-md">
+                Most Popular Network
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 rounded-full bg-red-500/20 text-red-300 font-bold text-xs">Airtel Local Traffic</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Airtel Uganda</h3>
+                <div className="my-6">
+                  <span className="text-4xl font-extrabold text-blue-400 font-mono">UGX 40</span>
+                  <span className="text-xs text-slate-400 ml-2">/ unique SMS</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>Fixed Markup: +15 UGX</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>High-Speed Nationwide Delivery</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span>Real-Time Wallet Deduction</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setIsCalculatorOpen(true)}
+                className="mt-8 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+              >
+                <Calculator className="w-4 h-4" /> Estimate Airtel Cost
+              </button>
+            </div>
+
+            {/* Other Telcos Rate */}
+            <div className="bg-slate-800/80 p-8 rounded-2xl border border-slate-700 hover:border-purple-400/50 transition-all flex flex-col justify-between shadow-xl">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-bold text-xs">Other Operators</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">Lyca & Others</h3>
+                <div className="my-6">
+                  <span className="text-4xl font-extrabold text-purple-400 font-mono">UGX 50</span>
+                  <span className="text-xs text-slate-400 ml-2">/ unique SMS</span>
+                </div>
+                <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Fixed Markup: +15 UGX</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Fallback Carrier Routing</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Immutable Audit Log</span>
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={() => setIsCalculatorOpen(true)}
+                className="mt-8 w-full py-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-bold text-xs transition border border-purple-400/30 flex items-center justify-center gap-2"
+              >
+                <Calculator className="w-4 h-4" /> Estimate Other Telcos
+              </button>
+            </div>
+
+          </div>
+
+          {/* Calculator Callout Banner */}
+          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 p-8 rounded-2xl border border-blue-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 shrink-0">
+                <Wallet className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-white">Want to calculate campaign costs in real time?</h4>
+                <p className="text-slate-300 text-sm mt-1">
+                  Use our interactive Pay-As-You-Go calculator to preview costs for mixed telecom contact lists.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+              <button
+                onClick={() => setIsCalculatorOpen(true)}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                <Calculator className="w-4 h-4" /> Open Campaign Calculator
+              </button>
+              <button
+                onClick={() => onOpenAuth('register')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                Fund Wallet Now <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
+
+      {/* PayAsYouGo Calculator Modal */}
+      <PayAsYouGoModal
+        isOpen={isCalculatorOpen}
+        onClose={() => setIsCalculatorOpen(false)}
+        onGetStarted={() => onOpenAuth('register')}
+      />
 
       {/* Footer */}
       <footer className="mt-auto py-10 bg-slate-900 text-slate-400 text-xs">
@@ -211,9 +298,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
           <div>
             <h4 className="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Company & Legal</h4>
             <ul className="space-y-2">
-              <li><button onClick={() => onNavigate?.('contact')} className="hover:text-white transition">Contact Us</button></li>
-              <li><button onClick={() => onNavigate?.('privacy')} className="hover:text-white transition">Privacy Policy</button></li>
-              <li><button onClick={() => onNavigate?.('terms')} className="hover:text-white transition">Terms of Service</button></li>
+              <li><button onClick={() => onNavigate && onNavigate('contact')} className="hover:text-white transition">Contact Us</button></li>
+              <li><button onClick={() => onNavigate && onNavigate('privacy')} className="hover:text-white transition">Privacy Policy</button></li>
+              <li><button onClick={() => onNavigate && onNavigate('terms')} className="hover:text-white transition">Terms of Service</button></li>
             </ul>
           </div>
 

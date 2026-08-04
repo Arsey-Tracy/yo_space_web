@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import type { Subscription, SMSBundle } from '../types';
-import { Sparkles, Phone, CheckCircle2, AlertTriangle, X, ShieldCheck } from 'lucide-react';
+import type { SMSBundle } from '../types';
+import { Sparkles, Phone, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 import { PaymentVerificationModal } from './PaymentVerificationModal';
 
 export const BillingPortal: React.FC = () => {
   const { organization, refreshOrg } = useAuth();
-  const [plans, setPlans] = useState<Subscription[]>([]);
+  // Subscription plans state removed for pay‑as‑you‑go model
   const [bundles, setBundles] = useState<SMSBundle[]>([]);
   
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
@@ -19,21 +19,17 @@ export const BillingPortal: React.FC = () => {
 
   const fetchBillingData = async () => {
     try {
-      const [plansRes, _currentRes, bundlesRes] = await Promise.all([
-        apiClient.get<Subscription[]>('/billing/plans/'),
+      const [_currentRes, bundlesRes] = await Promise.all([
         apiClient.get('/billing/current/'),
         apiClient.get<SMSBundle[]>('/billing/sms-bundles/'),
       ]);
-      const pList = Array.isArray(plansRes.data) ? plansRes.data : (plansRes.data as any)?.results || [];
       const bList = Array.isArray(bundlesRes.data) ? bundlesRes.data : (bundlesRes.data as any)?.results || [];
-      setPlans(pList);
       setBundles(bList);
       if (bList.length > 0) {
         setSelectedBundle(bList[0]);
       }
     } catch (err) {
       console.error(err);
-      setPlans([]);
       setBundles([]);
     }
   };
@@ -42,17 +38,7 @@ export const BillingPortal: React.FC = () => {
     fetchBillingData();
   }, []);
 
-  const handleSubscribeTier = async (tierName: string) => {
-    setMsg(null);
-    try {
-      const res = await apiClient.post('/billing/subscribe/', { tier: tierName });
-      setMsg({ type: 'success', text: res.data.message });
-      refreshOrg();
-      fetchBillingData();
-    } catch (err: any) {
-      setMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to change subscription plan.' });
-    }
-  };
+  // Subscription handling removed – pay‑as‑you‑go model does not use tiers
 
   const handlePurchaseBundle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,9 +121,6 @@ export const BillingPortal: React.FC = () => {
       {/* Current Plan & SMS Credit Summary Banner */}
       <div className="bg-white p-6 sm:p-8 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-blue-200 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 text-[11px] font-bold border border-blue-200">
-            {organization?.subscription_tier} Subscription Active
-          </span>
           <h2 className="text-2xl font-extrabold text-slate-900 mt-2">Billing & SMS Credits</h2>
           <p className="text-xs text-slate-500 mt-1">
             Current SMS Balance: <span className="text-blue-800 font-bold">{organization?.sms_balance.toLocaleString()} credits</span>
@@ -187,59 +170,7 @@ export const BillingPortal: React.FC = () => {
         </div>
       </div>
 
-      {/* Subscription Tiers Grid */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-bold text-slate-900">Subscription Tier Plans</h3>
-          <p className="text-xs text-slate-500">Upgrade or change your monthly subscription tier.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {(Array.isArray(plans) ? plans : []).map((p) => {
-            const isCurrent = organization?.subscription_tier === p.name;
-            return (
-              <div
-                key={p.id}
-                className={`bg-white p-6 rounded-2xl flex flex-col justify-between ${
-                  isCurrent ? 'border-2 border-blue-600 shadow-md bg-blue-50/20' : 'border border-slate-200 shadow-xs'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-slate-900 text-base">{p.name}</h4>
-                    {isCurrent && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-700 text-white">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-2xl font-extrabold text-blue-800 mt-3">UGX {Number(p.price).toLocaleString()}<span className="text-xs text-slate-500 font-normal">/mo</span></p>
-
-                  <ul className="mt-4 space-y-2 text-xs text-slate-600">
-                    <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> {p.max_spaces} Space{p.max_spaces > 1 ? 's' : ''}</li>
-                    <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> Up to {p.max_members_per_space} members/space</li>
-                    <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> {p.monthly_sms_quota.toLocaleString()} Initial SMS</li>
-                    {p.allow_merge_spaces && <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> Merge Spaces</li>}
-                    {p.allow_surveys && <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-blue-600" /> Surveys & Polls</li>}
-                  </ul>
-                </div>
-
-                <button
-                  disabled={isCurrent}
-                  onClick={() => handleSubscribeTier(p.name)}
-                  className={`mt-6 w-full py-2.5 rounded-xl font-bold text-xs transition ${
-                    isCurrent
-                      ? 'bg-slate-100 text-slate-400 cursor-default'
-                      : 'bg-blue-700 hover:bg-blue-800 text-white shadow-xs'
-                  }`}
-                >
-                  {isCurrent ? 'Current Plan' : `Switch to ${p.name}`}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* Subscription tier UI removed – pay‑as‑you‑go model */}
 
       {/* SMS Top-Up Modal */}
       {isTopUpOpen && (

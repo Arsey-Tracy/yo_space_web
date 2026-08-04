@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import type { Space, Survey } from '../types';
-import { Plus, CheckCircle2, AlertCircle, X, ListPlus, Send, Radio } from 'lucide-react';
+import { Plus, CheckCircle2, AlertCircle, X, ListPlus, Send } from 'lucide-react';
 
 export const SurveyBuilder: React.FC = () => {
   const [spaces, setSpaces] = useState<Space[]>([]);

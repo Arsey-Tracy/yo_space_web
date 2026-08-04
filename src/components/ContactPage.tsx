@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2, Globe, Clock, Shield } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
 
 interface ContactPageProps {
-  onNavigate?: (tab: string) => void;
-  onOpenAuth?: (mode: 'login' | 'register') => void;
 }
 
-export const ContactPage: React.FC<ContactPageProps> = ({ onNavigate, onOpenAuth }) => {
+export const ContactPage: React.FC<ContactPageProps> = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',

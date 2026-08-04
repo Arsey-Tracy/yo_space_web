@@ -2,10 +2,9 @@ import React from 'react';
 import { FileText, Shield, CreditCard, Radio, AlertTriangle } from 'lucide-react';
 
 interface TermsPageProps {
-  onNavigate?: (tab: string) => void;
 }
 
-export const TermsPage: React.FC<TermsPageProps> = ({ onNavigate }) => {
+export const TermsPage: React.FC<TermsPageProps> = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Hero Header */}

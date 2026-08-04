@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { Space, Broadcast } from '../types';
-import { MessageSquare, Send, AlertTriangle, CheckCircle2, X, Globe, Sparkles, Building2, Languages } from 'lucide-react';
+import { MessageSquare, Send, AlertTriangle, CheckCircle2, X, Sparkles, Building2, Languages } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, translateText, formatOrgBroadcast } from '../api/translation';
 
 export const BroadcastStudio: React.FC = () => {
