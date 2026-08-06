@@ -11,10 +11,11 @@ export interface User {
 export interface Organization {
   id: number;
   name: string;
-  subscription_tier: string;
   sender_id?: string;
   default_language: string;
   sms_balance: number;
+  wallet_cash_balance_ugx?: number;
+  payg_tier?: 'Starter' | 'Growth' | 'Enterprise Volume';
   owner?: User;
   spaces_count: number;
   created_at: string;
@@ -83,23 +84,6 @@ export interface Survey {
   created_at: string;
 }
 
-export interface Subscription {
-  id: number;
-  name: string;
-  price: number;
-  duration_in_days: number;
-  max_spaces: number;
-  max_members_per_space: number;
-  monthly_sms_quota: number;
-  allow_merge_spaces: boolean;
-  allow_public_private: boolean;
-  allow_analytics: boolean;
-  allow_reports: boolean;
-  allow_surveys: boolean;
-  features: string;
-  is_active: boolean;
-}
-
 export interface SMSBundle {
   id: number;
   name: string;
@@ -109,14 +93,25 @@ export interface SMSBundle {
   is_active: boolean;
 }
 
+export interface WalletTransaction {
+  id: number;
+  transaction_type: 'topup' | 'deduction';
+  amount_paid_ugx: number;
+  credits_added: number;
+  payment_method: string;
+  payment_reference: string;
+  created_at: string;
+  notes?: string;
+}
+
 export interface DashboardStats {
   organization: string;
-  subscription_tier: string;
   sms_balance: number;
+  cash_balance_ugx?: number;
   total_spaces: number;
-  max_spaces_limit: number;
   total_members: number;
-  max_members_per_space: number;
   broadcasts_sent_this_month: number;
   recent_broadcasts: Broadcast[];
+  recent_transactions?: WalletTransaction[];
 }
+

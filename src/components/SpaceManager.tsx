@@ -174,7 +174,7 @@ export const SpaceManager: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 font-sans text-slate-900">
+    <div className="space-y-6 font-sans text-slate-900 dark:text-slate-100">
       
       {/* Notifications */}
       {msg && (

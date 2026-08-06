@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   User as UserIcon,
   LogOut,
@@ -7,8 +8,10 @@ import {
   Building2,
   ChevronDown,
   Menu,
-  ShieldCheck,
   Globe,
+  Sun,
+  Moon,
+  Wallet,
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES } from '../api/translation';
 
@@ -23,7 +26,7 @@ interface TopHeaderProps {
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
   dashboard: {
     title: 'Dashboard Overview',
-    subtitle: 'Real-time metrics for spaces, SMS quotas, and broadcast history',
+    subtitle: 'Real-time metrics for spaces, prepaid wallet, and broadcast history',
   },
   spaces: {
     title: 'Spaces Manager',
@@ -38,8 +41,8 @@ const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
     subtitle: 'Build interactive USSD polls and inspect real-time response data',
   },
   billing: {
-    title: 'Billing & SMS Top-Up',
-    subtitle: 'Manage subscription tiers and purchase pay-as-you-go SMS bundles',
+    title: 'Wallet & Pay-As-You-Go Billing',
+    subtitle: 'Manage prepaid wallet balance, view SMS rates, and top up via Mobile Money',
   },
 };
 
@@ -51,6 +54,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onSelectLanguage,
 }) => {
   const { user, organization, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -83,24 +87,24 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-xs">
+    <header className="sticky top-0 z-20 h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 flex items-center justify-between shadow-xs transition-colors">
       
       {/* Left: Mobile Toggle & Page Title */}
       <div className="flex items-center gap-3 min-w-0">
         {onToggleMobileSidebar && (
           <button
             onClick={onToggleMobileSidebar}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200"
+            className="md:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
 
         <div className="min-w-0">
-          <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight truncate">
+          <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate">
             {tabInfo.title}
           </h1>
-          <p className="hidden sm:block text-[11px] text-slate-500 truncate">
+          <p className="hidden sm:block text-[11px] text-slate-500 dark:text-slate-400 truncate">
             {tabInfo.subtitle}
           </p>
         </div>
@@ -109,20 +113,33 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
       {/* Right Actions */}
       <div className="flex items-center gap-3 shrink-0" ref={dropdownRef}>
         
+        {/* Dark / Light Theme Toggle Switch */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-slate-600" />
+          )}
+        </button>
+
         {/* Local Language Selector Dropdown */}
         <div className="relative">
           <button
             onClick={() => setLangDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-xs font-semibold text-slate-800 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/80 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 transition"
             title="Choose Delivery Language"
           >
-            <Globe className="w-3.5 h-3.5 text-blue-700" />
+            <Globe className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>{currentLang.flag} {currentLang.name}</span>
             <ChevronDown className="w-3 h-3 text-slate-500" />
           </button>
 
           {langDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 animate-fadeIn max-h-64 overflow-y-auto">
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2 z-50 animate-fadeIn max-h-64 overflow-y-auto">
               <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 African & Regional Languages
               </p>
@@ -136,8 +153,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     }}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition ${
                       selectedLanguage === lang.code
-                        ? 'bg-blue-50 text-blue-800 font-bold border border-blue-200'
-                        : 'text-slate-700 hover:bg-slate-100'
+                        ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 font-bold border border-blue-200 dark:border-blue-800'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     <span>{lang.flag} {lang.name}</span>
@@ -149,18 +166,18 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           )}
         </div>
 
-        {/* SMS Credit Badge */}
+        {/* Wallet SMS Balance Badge */}
         {organization && (
           <div
             onClick={() => onNavigate('billing')}
-            className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all shadow-xs group"
+            className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-xs group"
           >
-            <Sparkles className="w-4 h-4 text-blue-600 animate-pulse shrink-0" />
+            <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-pulse shrink-0" />
             <div className="text-xs">
-              <span className="hidden sm:inline text-slate-500 font-medium">SMS: </span>
-              <span className="font-bold text-blue-900">{organization.sms_balance.toLocaleString()}</span>
+              <span className="hidden sm:inline text-slate-500 dark:text-slate-400 font-medium">SMS: </span>
+              <span className="font-bold text-blue-900 dark:text-blue-300">{organization.sms_balance.toLocaleString()}</span>
             </div>
-            <span className="hidden sm:inline text-[10px] text-blue-700 group-hover:underline font-semibold">&bull; Top Up</span>
+            <span className="hidden sm:inline text-[10px] text-blue-700 dark:text-blue-400 group-hover:underline font-semibold">&bull; Top Up</span>
           </div>
         )}
 
@@ -168,17 +185,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 border border-slate-200 hover:bg-slate-200/60 transition"
+            className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition"
           >
             <div className="w-8 h-8 rounded-lg bg-blue-700 text-white font-extrabold text-xs flex items-center justify-center shadow-xs">
               {getInitials(user?.username || organization?.name)}
             </div>
 
             <div className="hidden md:block text-left">
-              <div className="text-xs font-bold text-slate-900 truncate max-w-[120px]">
+              <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
                 {user?.username || 'Account'}
               </div>
-              <div className="text-[10px] text-slate-500 truncate max-w-[120px]">
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
                 {organization?.name || 'Organization'}
               </div>
             </div>
@@ -187,23 +204,23 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-slate-200 shadow-2xl p-2 z-50 animate-fadeIn">
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-2 z-50 animate-fadeIn">
               
-              <div className="p-3 border-b border-slate-100 mb-1">
-                <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <UserIcon className="w-3.5 h-3.5 text-blue-700" />
+              <div className="p-3 border-b border-slate-100 dark:border-slate-800 mb-1">
+                <p className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                   {user?.username}
                 </p>
-                <p className="text-[11px] text-slate-500 mt-0.5 truncate">{user?.email}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{user?.email}</p>
                 
                 {organization && (
-                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-600 flex items-center gap-1 font-medium">
-                      <Building2 className="w-3 h-3 text-blue-600" />
+                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px]">
+                    <span className="text-slate-600 dark:text-slate-300 flex items-center gap-1 font-medium">
+                      <Building2 className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                       {organization.name}
                     </span>
-                    <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px] border border-blue-200">
-                      {organization.subscription_tier}
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-[10px] border border-emerald-200 dark:border-emerald-800">
+                      PAYG Active
                     </span>
                   </div>
                 )}
@@ -215,20 +232,20 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                     onNavigate('billing');
                     setDropdownOpen(false);
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-100 transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 >
-                  <ShieldCheck className="w-4 h-4 text-blue-600" />
-                  Subscription & Billing
+                  <Wallet className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  Wallet & Billing
                 </button>
               </div>
 
-              <div className="pt-1 mt-1 border-t border-slate-100">
+              <div className="pt-1 mt-1 border-t border-slate-100 dark:border-slate-800">
                 <button
                   onClick={() => {
                     setDropdownOpen(false);
                     logout();
                   }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
@@ -244,3 +261,4 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     </header>
   );
 };
+

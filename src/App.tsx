@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
@@ -169,7 +170,7 @@ const AppContent: React.FC = () => {
   const showDashboard = isAuthenticated && DASHBOARD_TABS.includes(activeTab as DashboardTab);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans selection:bg-blue-700 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans selection:bg-blue-700 selection:text-white overflow-x-hidden transition-colors duration-200">
       
       {/* Authenticated Dashboard Layout with Sidebar */}
       {showDashboard ? (
@@ -204,7 +205,7 @@ const AppContent: React.FC = () => {
           )}
 
           {/* Main Dashboard Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50 dark:bg-slate-950">
             {/* Top Header Bar */}
             <TopHeader
               activeTab={activeTab}
@@ -296,8 +297,10 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

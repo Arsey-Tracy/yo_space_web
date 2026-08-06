@@ -106,7 +106,7 @@ export const BroadcastStudio: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 font-sans text-slate-900">
+    <div className="space-y-8 font-sans text-slate-900 dark:text-slate-100">
       
       {/* Notifications */}
       {msg && (
