@@ -19,22 +19,29 @@ export const BillingPortal: React.FC = () => {
 
   const fetchBillingData = async () => {
     try {
+      const walletPromise = apiClient.get('/billing/current/').catch(async (err: any) => {
+        if (err.response?.status === 404) {
+          return apiClient.get('/billing/wallet/balance/');
+        }
+        throw err;
+      });
+
       const [walletRes, bundlesRes] = await Promise.all([
-        apiClient.get('/billing/wallet/balance/'),
+        walletPromise,
         apiClient.get<SMSBundle[]>('/billing/sms-bundles/'),
       ]);
+
       const bList = Array.isArray(bundlesRes.data) ? bundlesRes.data : (bundlesRes.data as any)?.results || [];
       setBundles(bList);
       if (bList.length > 0) {
         setSelectedBundle(bList[0]);
       }
       if (walletRes?.data) {
-        // Optionally refresh organization data after fetching wallet balance.
         refreshOrg();
       }
     } catch (err: any) {
       console.error(err);
-      setMsg({ type: 'error', text: 'Unable to load billing data at this time.' });
+      setMsg({ type: 'error', text: 'Unable to load billing data at this time. Please try again later.' });
       setBundles([]);
     }
   };

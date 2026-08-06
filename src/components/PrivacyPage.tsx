@@ -34,7 +34,7 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = () => {
               Yo-Spaces collects information necessary to provide 2G SMS, Voice Conference, and USSD services to organizations and community members across Africa:
             </p>
             <ul className="space-y-2 text-sm text-slate-600 pl-4 list-disc">
-              <li><strong className="text-slate-800">Organization Data:</strong> Organization name, administrator email, primary contact phone number, and subscription billing details.</li>
+              <li><strong className="text-slate-800">Organization Data:</strong> Organization name, administrator email, primary contact phone number, and wallet transaction/payment details.</li>
               <li><strong className="text-slate-800">Member & Recipient Lists:</strong> Phone numbers, display names, and roles uploaded by organizations for broadcast communication.</li>
               <li><strong className="text-slate-800">Telephony & Interaction Logs:</strong> Call session IDs, USSD session state, SMS delivery statuses, and survey responses.</li>
             </ul>

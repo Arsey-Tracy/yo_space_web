@@ -40,12 +40,12 @@ export const TermsPage: React.FC<TermsPageProps> = () => {
               <CreditCard className="w-5 h-5 text-blue-600" /> 2. Payment Verification & Access Control
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed mb-3">
-              Access to protected dashboard workspaces, member management, and broadcast dispatch requires a confirmed subscription or active credit payment:
+              Access to protected dashboard workspaces, member management, and broadcast dispatch requires an active wallet balance or confirmed credit top-up payment:
             </p>
             <ul className="space-y-2 text-sm text-slate-600 pl-4 list-disc">
               <li><strong className="text-slate-800">Payment Confirmation:</strong> Features are unlocked only after successful Mobile Money or card payment verification.</li>
               <li><strong className="text-slate-800">SMS Credit Top-Ups:</strong> SMS broadcast credits purchased via top-up bundles do not expire as long as the organization account remains active.</li>
-              <li><strong className="text-slate-800">Tier Quotas:</strong> Standard, Pro, and Premium tiers define maximum spaces and member limits per space.</li>
+              <li><strong className="text-slate-800">Wallet Access:</strong> All core dashboard and broadcast functionality is available under the pay-as-you-go wallet model.</li>
             </ul>
           </div>
 

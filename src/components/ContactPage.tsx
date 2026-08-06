@@ -184,7 +184,7 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm bg-slate-50/50 text-slate-800"
                   >
                     <option value="general">General Inquiry</option>
-                    <option value="sales">Sales & Subscriptions</option>
+                    <option value="sales">Sales & Wallet Billing</option>
                     <option value="sender_id">Custom Sender ID Purchase (v2)</option>
                     <option value="technical">Technical Support</option>
                   </select>

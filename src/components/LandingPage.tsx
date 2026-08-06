@@ -118,7 +118,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Transparent Network Pricing</h2>
             <p className="text-slate-300 mt-4 text-base leading-relaxed">
-              No monthly subscription fees, hidden charges, or expiring credits. Deposit funds into your organization’s prepaid wallet and pay strictly per SMS sent.
+              No monthly fees, hidden charges, or expiring credits. Deposit funds into your organization’s prepaid wallet and pay strictly per SMS sent.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm font-semibold">
               <Globe className="w-4 h-4 text-blue-400" />

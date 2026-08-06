@@ -15,7 +15,6 @@ export interface Organization {
   default_language: string;
   sms_balance: number;
   wallet_cash_balance_ugx?: number;
-  payg_tier?: 'Starter' | 'Growth' | 'Enterprise Volume';
   owner?: User;
   spaces_count: number;
   created_at: string;

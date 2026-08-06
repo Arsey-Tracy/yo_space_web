@@ -63,7 +63,7 @@ export const PayAsYouGoModal: React.FC<PayAsYouGoModalProps> = ({ isOpen, onClos
             <div>
               <p className="font-semibold text-blue-900">Transparent Telco Rate Structure</p>
               <p className="text-blue-700 mt-1 leading-relaxed">
-                Zero subscription commitment. Charges are calculated strictly per unique recipient phone number categorized by operator.
+                No monthly commitment. Charges are calculated strictly per unique recipient phone number categorized by operator.
               </p>
             </div>
           </div>
