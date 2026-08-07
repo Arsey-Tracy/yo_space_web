@@ -12,7 +12,9 @@ export const BillingPortal: React.FC = () => {
   
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [selectedBundle, setSelectedBundle] = useState<SMSBundle | null>(null);
+  const [customAmount, setCustomAmount] = useState('');
   const [momoPhone, setMomoPhone] = useState('');
+  const [useCustomAmount, setUseCustomAmount] = useState(false);
   
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -54,23 +56,47 @@ export const BillingPortal: React.FC = () => {
 
   const handlePurchaseBundle = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedBundle) return;
     setMsg(null);
     setLoading(true);
 
+    const normalizedAmount = Number(customAmount);
+    const hasCustomAmount = useCustomAmount && Number.isFinite(normalizedAmount) && normalizedAmount > 0;
+    const hasBundle = !!selectedBundle;
+
+    if (!hasCustomAmount && !hasBundle) {
+      setMsg({ type: 'error', text: 'Please select a bundle or enter a custom top-up amount.' });
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await apiClient.post('/billing/sms-bundles/purchase/', {
-        bundle_id: selectedBundle.id,
+      const payload: Record<string, any> = {
         payment_method: 'Mobile Money (MTN / Airtel)',
         payment_reference: momoPhone,
-      });
+        phone_number: momoPhone,
+        external_id: `yo-space-${organization?.id || 'anon'}-${selectedBundle?.id || 'custom'}-${Date.now()}`,
+      };
 
-      setMsg({ type: 'success', text: `${res.data.credits_added} SMS credits added to your balance via Mobile Money!` });
+      if (hasCustomAmount) {
+        payload.custom_amount = normalizedAmount;
+      } else if (selectedBundle) {
+        payload.bundle_id = selectedBundle.id;
+      }
+
+      const res = await apiClient.post('/billing/sms-bundles/purchase/', payload);
+
+      const providerStatus = res.data?.provider?.status || 'Pending';
+      setMsg({
+        type: 'success',
+        text: `Payment collection started. Provider status: ${providerStatus}. Credits will be applied after confirmation.`,
+      });
       setIsTopUpOpen(false);
+      setCustomAmount('');
+      setUseCustomAmount(false);
       refreshOrg();
       fetchBillingData();
     } catch (err: any) {
-      setMsg({ type: 'error', text: 'Failed to process mobile money purchase.' });
+      setMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to process mobile money purchase.' });
     } finally {
       setLoading(false);
     }
@@ -83,31 +109,54 @@ export const BillingPortal: React.FC = () => {
     organizationName?: string;
   } | null>(null);
 
-  const handleTestMarzPayPayment = async () => {
+  const handleInitiateCollection = async () => {
     if (!momoPhone) {
-      setMsg({ type: 'error', text: 'Please enter a Mobile Money phone number to trigger the 1000 UGX payment test.' });
+      setMsg({ type: 'error', text: 'Please enter a Mobile Money phone number to start the payment collection.' });
       return;
     }
+
+    const normalizedAmount = Number(customAmount);
+    const hasCustomAmount = useCustomAmount && Number.isFinite(normalizedAmount) && normalizedAmount > 0;
+    const hasBundle = !!selectedBundle;
+
+    if (!hasCustomAmount && !hasBundle) {
+      setMsg({ type: 'error', text: 'Please select a bundle or enter a custom top-up amount.' });
+      return;
+    }
+
     setMsg(null);
     setLoading(true);
     try {
-      const res = await apiClient.post('/billing/test-payment/', {
+      const payload: Record<string, any> = {
+        payment_method: 'Mobile Money (MTN / Airtel)',
+        payment_reference: momoPhone,
         phone_number: momoPhone,
-        amount: 1000,
-        description: `1000 UGX MarzPay Test Payment for ${organization?.name || 'Yo-Spaces'}`
-      });
-      const pRes = res.data.marzpay_result;
+        external_id: `yo-space-${organization?.id || 'anon'}-${selectedBundle?.id || 'custom'}-${Date.now()}`,
+      };
+
+      if (hasCustomAmount) {
+        payload.custom_amount = normalizedAmount;
+      } else if (selectedBundle) {
+        payload.bundle_id = selectedBundle.id;
+      }
+
+      const res = await apiClient.post('/billing/sms-bundles/purchase/', payload);
+      const providerStatus = res.data?.provider?.status || 'Pending';
+      const externalId = res.data?.provider?.externalId || res.data?.purchase?.payment_reference || 'pending';
       setVerificationModal({
         phoneNumber: momoPhone,
-        amount: 1000,
-        reference: pRes?.reference || 'MARZPAY-TEST-REF',
+        amount: hasCustomAmount ? normalizedAmount : Number(selectedBundle?.price || 0),
+        reference: externalId,
         organizationName: organization?.name,
       });
+      setMsg({ type: 'success', text: `Collection initiated. Provider status: ${providerStatus}.` });
       setIsTopUpOpen(false);
+      setCustomAmount('');
+      setUseCustomAmount(false);
     } catch (err: any) {
       setMsg({
         type: 'error',
-        text: err.response?.data?.detail || err.response?.data?.message || 'Failed to trigger MarzPay test payment.'
+        text: err.response?.data?.detail || err.response?.data?.message || 'Failed to initiate ioTec collection.'
       });
     } finally {
       setLoading(false);
@@ -200,19 +249,48 @@ export const BillingPortal: React.FC = () => {
               <div>
                 <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Select Bundle</label>
                 <select
-                  value={selectedBundle?.id}
+                  value={selectedBundle?.id ?? ''}
                   onChange={(e) => {
-                    const b = bundles.find((item) => item.id === Number(e.target.value));
-                    if (b) setSelectedBundle(b);
+                    const nextValue = e.target.value;
+                    if (nextValue === 'custom') {
+                      setSelectedBundle(null);
+                      setUseCustomAmount(true);
+                    } else {
+                      const b = bundles.find((item) => item.id === Number(nextValue));
+                      if (b) {
+                        setSelectedBundle(b);
+                        setUseCustomAmount(false);
+                      }
+                    }
                   }}
                   className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white"
                 >
+                  <option value="">Choose a bundle</option>
                   {(Array.isArray(bundles) ? bundles : []).map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name} - {b.sms_count.toLocaleString()} SMS (UGX {Number(b.price).toLocaleString()})
                     </option>
                   ))}
+                  <option value="custom">Custom amount</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Custom Amount (UGX)</label>
+                <input
+                  type="number"
+                  min="1000"
+                  step="100"
+                  placeholder="e.g. 5000"
+                  value={customAmount}
+                  onChange={(e) => {
+                    setCustomAmount(e.target.value);
+                    if (e.target.value) {
+                      setUseCustomAmount(true);
+                    }
+                  }}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
+                />
               </div>
 
               <div>
@@ -230,15 +308,25 @@ export const BillingPortal: React.FC = () => {
                 </div>
               </div>
 
-              {selectedBundle && (
+              {(selectedBundle || useCustomAmount) && (
                 <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span>Bundle:</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{selectedBundle.name} ({selectedBundle.sms_count} SMS)</span>
-                  </div>
+                  {selectedBundle && (
+                    <div className="flex items-center justify-between">
+                      <span>Bundle:</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{selectedBundle.name} ({selectedBundle.sms_count} SMS)</span>
+                    </div>
+                  )}
+                  {useCustomAmount && customAmount && (
+                    <div className="flex items-center justify-between">
+                      <span>Custom Amount:</span>
+                      <span className="font-bold text-blue-800 dark:text-blue-400">UGX {Number(customAmount).toLocaleString()}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <span>Total Amount:</span>
-                    <span className="font-bold text-blue-800 dark:text-blue-400">UGX {Number(selectedBundle.price).toLocaleString()}</span>
+                    <span className="font-bold text-blue-800 dark:text-blue-400">
+                      UGX {(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               )}
@@ -249,16 +337,16 @@ export const BillingPortal: React.FC = () => {
                   disabled={loading}
                   className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-md disabled:opacity-50 transition"
                 >
-                  {loading ? 'Processing Mobile Money...' : `Pay UGX ${selectedBundle ? Number(selectedBundle.price).toLocaleString() : 0}`}
+                  {loading ? 'Processing Mobile Money...' : `Pay UGX ${(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}`}
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleTestMarzPayPayment}
+                  onClick={handleInitiateCollection}
                   disabled={loading}
                   className="w-full py-2.5 rounded-xl border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 font-bold text-xs hover:bg-blue-100 dark:hover:bg-blue-900 disabled:opacity-50 transition"
                 >
-                  ⚡ Test 1,000 UGX Payment Prompt
+                  ⚡ Start ioTec Collection Prompt
                 </button>
               </div>
             </form>

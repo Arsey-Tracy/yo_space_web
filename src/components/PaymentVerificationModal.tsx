@@ -56,10 +56,7 @@ export const PaymentVerificationModal: React.FC<PaymentVerificationModalProps> =
     setStatusMessage('Communicating with Mobile Money Gateway...');
 
     try {
-      await apiClient.post('/billing/verify-payment/', {
-        reference: paymentDetails?.reference,
-        phone_number: paymentDetails?.phoneNumber,
-      });
+      await apiClient.get(`/billing/payments/status/${encodeURIComponent(paymentDetails?.reference || '')}/`);
 
       setTimeout(() => {
         setStep('success');
@@ -144,7 +141,7 @@ export const PaymentVerificationModal: React.FC<PaymentVerificationModalProps> =
             <CheckCircle2 className="w-4 h-4 shrink-0 text-blue-600" />
             <div className="flex-1">
               <p className="font-semibold">1. USSD Collection Prompt Sent</p>
-              <p className="text-[11px] text-slate-500">Mobile Money prompt dispatched to {paymentDetails.phoneNumber}</p>
+              <p className="text-[11px] text-slate-500">Collection prompt dispatched to {paymentDetails.phoneNumber}</p>
             </div>
           </div>
 
@@ -164,7 +161,7 @@ export const PaymentVerificationModal: React.FC<PaymentVerificationModalProps> =
             )}
             <div className="flex-1">
               <p className="font-semibold">2. Authorize Mobile Money PIN</p>
-              <p className="text-[11px] text-slate-500">Check phone screen and enter Mobile Money PIN</p>
+              <p className="text-[11px] text-slate-500">Check the phone screen and complete the Mobile Money authorization</p>
             </div>
           </div>
 
@@ -183,7 +180,7 @@ export const PaymentVerificationModal: React.FC<PaymentVerificationModalProps> =
               <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
             )}
             <div className="flex-1">
-              <p className="font-semibold">3. Access Grant Verification</p>
+              <p className="font-semibold">3. Provider Status Check</p>
               <p className="text-[11px] text-slate-500">{statusMessage}</p>
             </div>
           </div>

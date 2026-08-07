@@ -11,21 +11,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 bg-cover bg-center" style={{ backgroundImage: "url('/hero_graphic.png')" }}>
-        <div className="absolute inset-0 bg-black/65" aria-hidden="true"></div>
+      <section className="relative pt-16 pb-24 bg-cover bg-center overflow-hidden" style={{ backgroundImage: "linear-gradient(120deg, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.75) 45%, rgba(2, 6, 23, 0.92) 100%), url('/hero_graphic.png')" }}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.16),transparent_42%)]" aria-hidden="true"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold mb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-100 text-xs font-semibold mb-8 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
             <Zap className="w-3.5 h-3.5 text-blue-400" /> Enterprise-Grade 2G Voice, SMS & USSD Platform for Organizations
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight drop-shadow-[0_2px_18px_rgba(0,0,0,0.55)]">
             Connect Every Member & Community Instantly via <span className="text-blue-400">Voice, SMS & USSD</span>
           </h1>
 
-          <p className="mt-6 text-lg sm:text-xl text-blue-100/90 max-w-3xl mx-auto leading-relaxed font-normal">
+          <p className="mt-6 text-lg sm:text-xl text-blue-50/95 max-w-3xl mx-auto leading-relaxed font-normal drop-shadow-[0_1px_10px_rgba(0,0,0,0.45)]">
             Yo-Spaces enables B2B organizations, NGOs, cooperatives, and enterprise teams to broadcast simultaneously across Africa — seamlessly delivering messages even to basic 2G feature phones.
           </p>
 
@@ -38,7 +38,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
             </button>
             <button
               onClick={() => onOpenAuth('login')}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-base transition-all"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-base transition-all backdrop-blur-sm"
             >
               Sign In to Organization Dashboard
             </button>
@@ -68,40 +68,40 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-white border-b border-slate-200">
+      <section className="py-20 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-extrabold text-slate-900">Purpose-Built Communication Solutions</h2>
-            <p className="text-slate-600 mt-3 text-sm sm:text-base">Pass information quickly, organize audio spaces, and run African language surveys effortlessly.</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Purpose-Built Communication Solutions</h2>
+            <p className="text-slate-600 dark:text-slate-300 mt-3 text-sm sm:text-base">Pass information quickly, organize audio spaces, and run African language surveys effortlessly.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-6">
+            <div className="bg-slate-50 dark:bg-slate-900/70 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 transition-all hover:shadow-md">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-6">
                 <MessageSquare className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Bulk SMS Broadcasts</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Bulk SMS Broadcasts</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                 Broadcast instant SMS updates, agricultural notices, meeting alerts, and announcements to thousands of recipients simultaneously with custom Organization headers.
               </p>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-6">
+            <div className="bg-slate-50 dark:bg-slate-900/70 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 transition-all hover:shadow-md">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-6">
                 <PhoneCall className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Voice Conference Spaces</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Voice Conference Spaces</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                 Host live voice audio conference calls accessible via simple 4-digit PINs. Members dial in from basic phones or receive automated outbound calls to join.
               </p>
             </div>
 
-            <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-blue-300 transition-all hover:shadow-md">
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-6">
+            <div className="bg-slate-50 dark:bg-slate-900/70 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-600 transition-all hover:shadow-md">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 flex items-center justify-center mb-6">
                 <Radio className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">USSD Surveys & Analytics</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">USSD Surveys & Analytics</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                 Conduct real-time surveys and polls via USSD menu (*256#). Collect responses, view percentage breakdowns, and auto-translate into local African languages.
               </p>
             </div>
@@ -237,7 +237,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
           </div>
 
           {/* Calculator Callout Banner */}
-          <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-800 p-8 rounded-2xl border border-blue-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+          <div className="bg-linear-to-r from-blue-900 via-indigo-900 to-slate-800 p-8 rounded-2xl border border-blue-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-400 shrink-0">
                 <Wallet className="w-7 h-7" />
