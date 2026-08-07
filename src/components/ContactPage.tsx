@@ -28,8 +28,8 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Hero Header */}
-      <section className="bg-gradient-to-b from-blue-900 via-blue-900 to-indigo-950 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent pointer-events-none" />
+      <section className="bg-linear-to-b from-blue-900 via-blue-900 to-indigo-950 text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold uppercase tracking-wider mb-4">
             <MessageSquare className="w-3.5 h-3.5" /> 24/7 Enterprise Support
@@ -55,8 +55,8 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">Phone & Toll-Free</h3>
               <p className="text-sm text-slate-600 mb-3">Reach our regional communications desk directly.</p>
-              <a href="tel:+256323200925" className="text-blue-700 font-semibold text-sm hover:underline block">
-                +256 323 200 925 (Voice Line)
+              <a href="tel:+256787711787" className="text-blue-700 font-semibold text-sm hover:underline block">
+                +256 787711787(Voice Line)
               </a>
               <span className="text-xs text-slate-500 block mt-1">Mon–Fri: 8:00 AM – 6:00 PM EAT</span>
             </div>
@@ -68,10 +68,10 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               <h3 className="text-lg font-bold text-slate-900 mb-1">Email Support</h3>
               <p className="text-sm text-slate-600 mb-3">Send us an email for general or technical inquiries.</p>
               <a href="mailto:support@yospaces.org" className="text-blue-700 font-semibold text-sm hover:underline block">
-                support@yospaces.org
+                support@yospaces.com
               </a>
               <a href="mailto:sales@yospaces.org" className="text-blue-700 font-semibold text-sm hover:underline block">
-                sales@yospaces.org
+                sales@yospaces.com
               </a>
             </div>
 
@@ -82,8 +82,8 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
               <h3 className="text-lg font-bold text-slate-900 mb-1">Headquarters</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Yo-Spaces Technology Hub<br />
-                Innovation Village, Block 4<br />
-                Kampala, Uganda
+                National ICT Innovation Hub<br />
+                Kampala, Uganda. Nakawa
               </p>
             </div>
           </div>
