@@ -143,10 +143,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
                 <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Fixed Markup: +13 UGX</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
                     <span>Instant Local Delivery Rate</span>
                   </li>
                   <li className="flex items-center gap-2">
@@ -178,11 +174,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
                   <span className="text-xs text-slate-400 ml-2">/ unique SMS</span>
                 </div>
                 <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span>Fixed Markup: +15 UGX</span>
-                  </li>
-                  <li className="flex items-center gap-2">
+                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
                     <span>High-Speed Nationwide Delivery</span>
                   </li>
@@ -212,10 +204,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
                   <span className="text-xs text-slate-400 ml-2">/ unique SMS</span>
                 </div>
                 <ul className="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-6">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
-                    <span>Fixed Markup: +15 UGX</span>
-                  </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
                     <span>Fallback Carrier Routing</span>
