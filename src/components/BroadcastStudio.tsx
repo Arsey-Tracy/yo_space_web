@@ -5,6 +5,9 @@ import type { Space, Broadcast } from '../types';
 import { MessageSquare, Send, AlertTriangle, CheckCircle2, X, Sparkles, Building2, Languages } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, translateText, formatOrgBroadcast } from '../api/translation';
 
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+
 export const BroadcastStudio: React.FC = () => {
   const { organization } = useAuth();
   const [spaces, setSpaces] = useState<Space[]>([]);
@@ -106,18 +109,20 @@ export const BroadcastStudio: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 font-sans text-slate-900 dark:text-slate-100">
+    <div className="space-y-8 font-sans text-ink">
       
       {/* Notifications */}
       {msg && (
-        <div className={`p-4 rounded-xl text-xs flex items-center justify-between gap-3 ${
-          msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
+        <div className={`p-4 rounded-[10px] text-xs flex items-center justify-between gap-3 ${
+          msg.type === 'success' ? 'bg-paper border border-line text-success' : 'bg-paper border border-line text-alert'
         }`}>
           <div className="flex items-center gap-2">
-            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-success" /> : <AlertTriangle className="w-4 h-4 text-alert" />}
             <span className="font-medium">{msg.text}</span>
           </div>
-          <button onClick={() => setMsg(null)}><X className="w-4 h-4" /></button>
+          <Button variant="ghost" size="sm" onClick={() => setMsg(null)} aria-label="Close notification">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       )}
 
@@ -125,27 +130,27 @@ export const BroadcastStudio: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* SMS Form */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <Card className="p-6 sm:p-8 rounded-[10px] border-line shadow-xs lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between border-b border-line pb-4">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Broadcast Studio</h2>
-              <p className="text-xs text-slate-500">Compose and dispatch bulk SMS alerts across your 2G spaces.</p>
+              <h2 className="text-xl font-display font-bold text-ink">Broadcast Studio</h2>
+              <p className="text-xs text-muted">Compose and dispatch bulk SMS alerts across your 2G spaces.</p>
             </div>
-            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-100">
+            <div className="p-2.5 rounded-[10px] bg-paper text-primary border border-line">
               <MessageSquare className="w-5 h-5" />
             </div>
           </div>
 
           <form onSubmit={handleSendBroadcast} className="space-y-5 text-xs">
             <div>
-              <label className="block text-slate-700 font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
+              <label className="block text-ink font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
                 Select Target Space *
               </label>
               <select
                 required
                 value={selectedSpaceId}
                 onChange={(e) => setSelectedSpaceId(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 focus:bg-white text-xs font-semibold text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-[10px] bg-paper border border-line text-xs font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {(Array.isArray(spaces) ? spaces : []).map((sp) => (
                   <option key={sp.id} value={sp.id}>
@@ -156,10 +161,10 @@ export const BroadcastStudio: React.FC = () => {
             </div>
 
             {/* Translation & Org Bar */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div className="p-3.5 rounded-[10px] bg-paper border border-line space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-slate-700">
-                  <Languages className="w-4 h-4 text-blue-600 shrink-0" />
+                <div className="flex items-center gap-2 text-ink">
+                  <Languages className="w-4 h-4 text-primary shrink-0" />
                   <span className="font-semibold text-xs">Local Language Auto-Translate:</span>
                 </div>
 
@@ -167,7 +172,7 @@ export const BroadcastStudio: React.FC = () => {
                   <select
                     value={targetLang}
                     onChange={(e) => setTargetLang(e.target.value)}
-                    className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-800 font-medium"
+                    className="px-2.5 py-1.5 rounded-[10px] bg-card border border-line text-xs text-ink font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {SUPPORTED_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
@@ -176,19 +181,20 @@ export const BroadcastStudio: React.FC = () => {
                     ))}
                   </select>
 
-                  <button
+                  <Button
                     type="button"
+                    variant="primary"
+                    size="sm"
                     onClick={handleTranslate}
                     disabled={translating || !message.trim()}
-                    className="px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs shadow-xs disabled:opacity-50 transition"
                   >
                     {translating ? 'Translating...' : 'Translate'}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               {translationNotice && (
-                <p className="text-[11px] text-blue-700 font-medium flex items-center gap-1">
+                <p className="text-[11px] text-primary font-medium flex items-center gap-1">
                   <Sparkles className="w-3 h-3" /> {translationNotice}
                 </p>
               )}
@@ -196,10 +202,10 @@ export const BroadcastStudio: React.FC = () => {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-slate-700 font-semibold uppercase text-[10px] tracking-wider">
+                <label className="block text-ink font-semibold uppercase text-[10px] tracking-wider">
                   Broadcast Message *
                 </label>
-                <span className="text-[11px] text-slate-500 font-medium">
+                <span className="text-[11px] text-muted font-mono font-medium">
                   {message.length} chars ({smsSegments} SMS segment{smsSegments > 1 ? 's' : ''})
                 </span>
               </div>
@@ -209,17 +215,17 @@ export const BroadcastStudio: React.FC = () => {
                 placeholder="Type your SMS message here..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-transparent text-xs leading-relaxed text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-[10px] bg-paper border border-line text-xs leading-relaxed text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               />
             </div>
 
             {/* Recipient Message Preview with Org Name */}
             {message.trim() && (
-              <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200 space-y-1">
-                <span className="text-[10px] font-bold text-blue-800 uppercase tracking-wider flex items-center gap-1">
-                  <Building2 className="w-3 h-3 text-blue-700" /> Recipient 2G Phone Display Preview:
+              <div className="p-3.5 rounded-[10px] bg-paper border border-line space-y-1">
+                <span className="text-[10px] font-bold text-primary uppercase tracking-wider flex items-center gap-1">
+                  <Building2 className="w-3 h-3 text-primary" /> Recipient 2G Phone Display Preview:
                 </span>
-                <p className="text-xs text-slate-800 font-mono bg-white p-2 rounded-lg border border-blue-100">
+                <p className="text-xs text-ink font-mono bg-card p-2 rounded-[10px] border border-line">
                   {formattedPreview}
                 </p>
               </div>
@@ -227,13 +233,13 @@ export const BroadcastStudio: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-slate-700 font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
+                <label className="block text-ink font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
                   Sending Mode
                 </label>
                 <select
                   value={status}
                   onChange={(e: any) => setStatus(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 focus:bg-white text-xs font-medium text-slate-900"
+                  className="w-full px-3.5 py-2.5 rounded-[10px] bg-paper border border-line text-xs font-medium text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <option value="sent">Send Immediately</option>
                   <option value="draft">Save as Draft</option>
@@ -243,7 +249,7 @@ export const BroadcastStudio: React.FC = () => {
 
               {status === 'scheduled' && (
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
+                  <label className="block text-ink font-semibold mb-1.5 uppercase text-[10px] tracking-wider">
                     Scheduled Date & Time
                   </label>
                   <input
@@ -251,68 +257,70 @@ export const BroadcastStudio: React.FC = () => {
                     required
                     value={scheduledAt}
                     onChange={(e) => setScheduledAt(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 focus:bg-white text-xs text-slate-900"
+                    className="w-full px-3.5 py-2.5 rounded-[10px] bg-paper border border-line text-xs text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   />
                 </div>
               )}
             </div>
 
             <div className="pt-2">
-              <button
+              <Button
                 type="submit"
                 disabled={loading || !message.trim()}
-                className="w-full py-3.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-md disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                variant="primary"
+                fullWidth
+                size="lg"
               >
                 <Send className="w-4 h-4" />
                 {loading ? 'Processing...' : status === 'sent' ? 'Send Bulk SMS Broadcast' : 'Save Broadcast'}
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
+        </Card>
 
         {/* Calculation Card */}
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 h-fit">
-          <h3 className="font-bold text-slate-900 text-base border-b border-slate-100 pb-3">Delivery Estimate</h3>
+        <Card className="p-6 rounded-[10px] border-line shadow-xs space-y-6 h-fit">
+          <h3 className="font-display font-bold text-ink text-base border-b border-line pb-3">Delivery Estimate</h3>
 
-          <div className="space-y-4 text-xs">
-            <div className="flex items-center justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 font-medium">Target Space:</span>
-              <span className="font-bold text-slate-900">{currentSpace?.name || 'N/A'}</span>
+          <div className="space-y-4 text-xs font-sans">
+            <div className="flex items-center justify-between py-2 border-b border-line">
+              <span className="text-muted font-medium">Target Space:</span>
+              <span className="font-bold text-ink">{currentSpace?.name || 'N/A'}</span>
             </div>
 
-            <div className="flex items-center justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 font-medium">Recipients Count:</span>
-              <span className="font-bold text-blue-700">{recipientCount} members</span>
+            <div className="flex items-center justify-between py-2 border-b border-line font-mono">
+              <span className="text-muted font-sans font-medium">Recipients Count:</span>
+              <span className="font-bold text-primary">{recipientCount} members</span>
             </div>
 
-            <div className="flex items-center justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 font-medium">SMS Segments:</span>
-              <span className="font-bold text-slate-800">{smsSegments} per recipient</span>
+            <div className="flex items-center justify-between py-2 border-b border-line font-mono">
+              <span className="text-muted font-sans font-medium">SMS Segments:</span>
+              <span className="font-bold text-ink">{smsSegments} per recipient</span>
             </div>
 
-            <div className="flex items-center justify-between py-2 border-b border-slate-100">
-              <span className="text-slate-500 font-medium">Total Credits Needed:</span>
-              <span className="font-extrabold text-blue-800 text-sm">{totalCreditsNeeded} Credits</span>
+            <div className="flex items-center justify-between py-2 border-b border-line font-mono">
+              <span className="text-muted font-sans font-medium">Total Credits Needed:</span>
+              <span className="font-extrabold text-primary text-sm">{totalCreditsNeeded} Credits</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 space-y-1">
-            <p className="font-semibold text-slate-900">Organization Sender Header:</p>
+          <div className="p-4 rounded-[10px] bg-paper border border-line text-[11px] text-muted space-y-1">
+            <p className="font-semibold text-ink">Organization Sender Header:</p>
             <p className="leading-relaxed">
-              Messages automatically include <code className="bg-white px-1 py-0.5 rounded border border-slate-300 font-bold text-blue-800">[{organization?.name || 'OrgName'}]</code> to identify your organization on 2G mobile phones.
+              Messages automatically include <code className="bg-card px-1 py-0.5 rounded-[10px] border border-line font-mono font-bold text-primary">[{organization?.name || 'OrgName'}]</code> to identify your organization on 2G mobile phones.
             </p>
           </div>
-        </div>
+        </Card>
 
       </div>
 
       {/* Broadcast History Table */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <h3 className="font-bold text-slate-900 text-base">Broadcast History</h3>
+      <Card className="p-6 rounded-[10px] border-line shadow-xs space-y-4">
+        <h3 className="font-display font-bold text-ink text-base">Broadcast History</h3>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700">
-            <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 uppercase text-[10px] tracking-wider font-semibold">
+          <table className="w-full text-left text-xs text-ink">
+            <thead className="bg-paper text-muted border-b border-line uppercase text-[10px] tracking-wider font-semibold">
               <tr>
                 <th className="py-3 px-4">Space</th>
                 <th className="py-3 px-4">Message</th>
@@ -322,36 +330,35 @@ export const BroadcastStudio: React.FC = () => {
                 <th className="py-3 px-4">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-line">
               {!(Array.isArray(broadcasts) && broadcasts.length > 0) ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                  <td colSpan={6} className="py-8 text-center text-muted">
                     No broadcasts sent yet.
                   </td>
                 </tr>
               ) : (
                 (Array.isArray(broadcasts) ? broadcasts : []).map((b) => (
-                  <tr key={b.id} className="hover:bg-slate-50/80">
-                    <td className="py-3 px-4 font-bold text-slate-900">{b.space_name}</td>
-                    <td className="py-3 px-4 max-w-xs truncate text-slate-700 font-mono text-[11px]">{b.message}</td>
+                  <tr key={b.id} className="hover:bg-paper">
+                    <td className="py-3 px-4 font-bold text-ink">{b.space_name}</td>
+                    <td className="py-3 px-4 max-w-xs truncate text-ink font-mono text-[11px]">{b.message}</td>
                     <td className="py-3 px-4">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
-                        b.status === 'sent' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                        b.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
+                      <span className={`px-2.5 py-0.5 rounded-[10px] text-[10px] font-bold border border-line ${
+                        b.status === 'sent' ? 'bg-paper text-success' : 'bg-paper text-muted'
                       }`}>
                         {b.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-bold text-slate-900">{b.recipients_count}</td>
-                    <td className="py-3 px-4 text-blue-700 font-bold">{b.cost_credits}</td>
-                    <td className="py-3 px-4 text-slate-500">{new Date(b.created_at).toLocaleString()}</td>
+                    <td className="py-3 px-4 font-mono font-bold text-ink">{b.recipients_count}</td>
+                    <td className="py-3 px-4 font-mono text-primary font-bold">{b.cost_credits}</td>
+                    <td className="py-3 px-4 font-mono text-muted">{new Date(b.created_at).toLocaleString()}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
     </div>
   );

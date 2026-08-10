@@ -192,10 +192,10 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             </div>
 
             <div className="hidden md:block text-left">
-              <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
+              <div className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-30">
                 {user?.username || 'Account'}
               </div>
-              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
+              <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-30">
                 {organization?.name || 'Organization'}
               </div>
             </div>

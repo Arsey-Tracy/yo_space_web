@@ -5,6 +5,10 @@ import type { SMSBundle } from '../types';
 import { Sparkles, Phone, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 import { PaymentVerificationModal } from './PaymentVerificationModal';
 
+import { Card } from './ui/Card';
+import { Input } from './ui/Input';
+import { Button } from './ui/Button';
+
 export const BillingPortal: React.FC = () => {
   const { organization, refreshOrg } = useAuth();
   // Subscription plans state removed for pay‑as‑you‑go model
@@ -51,8 +55,6 @@ export const BillingPortal: React.FC = () => {
   useEffect(() => {
     fetchBillingData();
   }, []);
-
-  // Subscription handling removed – pay‑as‑you‑go model does not use tiers
 
   const handlePurchaseBundle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -164,90 +166,103 @@ export const BillingPortal: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 font-sans text-slate-900 dark:text-slate-100">
+    <div className="space-y-8 font-sans text-ink">
       
       {/* Notifications */}
       {msg && (
-        <div className={`p-4 rounded-xl text-xs flex items-center justify-between gap-3 ${
-          msg.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+        <div className={`p-4 rounded-[10px] text-xs flex items-center justify-between gap-3 ${
+          msg.type === 'success' ? 'bg-paper border border-line text-success' : 'bg-paper border border-line text-alert'
         }`}>
           <div className="flex items-center gap-2">
-            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
+            {msg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-success" /> : <AlertTriangle className="w-4 h-4 text-alert" />}
             <span className="font-medium">{msg.text}</span>
           </div>
-          <button onClick={() => setMsg(null)}><X className="w-4 h-4" /></button>
+          <Button variant="ghost" size="sm" onClick={() => setMsg(null)} aria-label="Close notification">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       )}
 
       {/* Current Plan & SMS Credit Summary Banner */}
-      <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-blue-200 dark:border-blue-900 shadow-sm transition-colors">
+      <Card className="p-6 sm:p-8 rounded-[10px] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-line shadow-xs">
         <div>
-          <span className="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 text-[11px] font-semibold border border-blue-200 dark:border-blue-800">
+          <span className="px-2.5 py-1 rounded-[10px] bg-paper text-primary text-[11px] font-semibold border border-line">
             Pay-As-You-Go Model (Zero Expiring Credits)
           </span>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white mt-2">Prepaid Wallet & SMS Balance</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Current Balance: <span className="text-blue-800 dark:text-blue-300 font-bold">{organization?.sms_balance.toLocaleString()} SMS credits</span> (~UGX {((organization?.sms_balance ?? 0) * 40).toLocaleString()} value)
+          <h2 className="text-2xl font-display font-extrabold text-ink mt-2">Prepaid Wallet & SMS Balance</h2>
+          <p className="text-xs text-muted mt-1">
+            Current Balance: <span className="text-primary font-mono font-bold">{organization?.sms_balance.toLocaleString()} SMS credits</span> (~UGX <span className="font-mono">{((organization?.sms_balance ?? 0) * 40).toLocaleString()}</span> value)
           </p>
         </div>
 
-        <button
+        <Button
+          variant="primary"
+          size="lg"
           onClick={() => setIsTopUpOpen(true)}
-          className="px-6 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition shrink-0"
+          className="shrink-0"
         >
           <Sparkles className="w-4 h-4" /> Top Up Wallet (Mobile Money)
-        </button>
-      </div>
+        </Button>
+      </Card>
 
       {/* Pay-As-You-Go SMS Top-Up Bundles Grid */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pay-As-You-Go Top-Up Packs</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Top up credits anytime via MTN Mobile Money or Airtel Money. All rates calculated transparently from final selling prices.</p>
+          <h3 className="text-lg font-display font-bold text-ink">Pay-As-You-Go Top-Up Packs</h3>
+          <p className="text-xs text-muted">Top up credits anytime via MTN Mobile Money or Airtel Money. All rates calculated transparently from final selling prices.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(Array.isArray(bundles) ? bundles : []).map((b) => (
-            <div key={b.id} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-600 transition">
+            <Card key={b.id} className="p-5 rounded-[10px] border-line flex flex-col justify-between hover:border-primary transition">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-900 dark:text-white text-sm">{b.name}</span>
-                  <span className="text-[10px] font-bold text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded">
+                  <span className="font-bold text-ink text-sm">{b.name}</span>
+                  <span className="text-[10px] font-mono font-bold text-primary bg-paper border border-line px-2 py-0.5 rounded-[10px]">
                     UGX {Number(b.price_per_sms).toFixed(0)}/SMS
                   </span>
                 </div>
-                <p className="text-2xl font-extrabold text-blue-800 dark:text-blue-400 mt-2">{b.sms_count.toLocaleString()} SMS</p>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-semibold mt-1">UGX {Number(b.price).toLocaleString()}</p>
+                <p className="text-2xl font-display font-extrabold text-primary mt-2 font-mono">{b.sms_count.toLocaleString()} SMS</p>
+                <p className="text-xs text-muted font-mono font-semibold mt-1">UGX {Number(b.price).toLocaleString()}</p>
               </div>
 
-              <button
+              <Button
+                variant="outline"
+                size="md"
+                fullWidth
                 onClick={() => {
                   setSelectedBundle(b);
                   setIsTopUpOpen(true);
                 }}
-                className="mt-4 w-full py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-blue-700 hover:text-white dark:hover:bg-blue-600 text-slate-800 dark:text-slate-200 font-bold text-xs transition"
+                className="mt-4"
               >
                 Buy Pack
-              </button>
-            </div>
+              </Button>
+            </Card>
           ))}
         </div>
       </div>
 
       {/* SMS Top-Up Modal */}
       {isTopUpOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4 text-slate-900 dark:text-white">
-            <button onClick={() => setIsTopUpOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-xs">
+          <Card className="w-full max-w-md p-6 rounded-[10px] border-line shadow-2xl relative space-y-4 text-ink">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsTopUpOpen(false)}
+              className="absolute top-4 right-4 text-muted hover:text-ink p-1 rounded-[10px]"
+              aria-label="Close top up modal"
+            >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
 
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Top Up SMS Credits</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Instant Mobile Money payment (MTN / Airtel Uganda)</p>
+            <h3 className="text-lg font-display font-bold text-ink">Top Up SMS Credits</h3>
+            <p className="text-xs text-muted">Instant Mobile Money payment (MTN / Airtel Uganda)</p>
 
             <form onSubmit={handlePurchaseBundle} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Select Bundle</label>
+                <label className="block text-ink font-semibold mb-1">Select Bundle</label>
                 <select
                   value={selectedBundle?.id ?? ''}
                   onChange={(e) => {
@@ -263,7 +278,7 @@ export const BillingPortal: React.FC = () => {
                       }
                     }
                   }}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2.5 rounded-[10px] bg-paper border border-line text-xs font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <option value="">Choose a bundle</option>
                   {(Array.isArray(bundles) ? bundles : []).map((b) => (
@@ -276,8 +291,8 @@ export const BillingPortal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Custom Amount (UGX)</label>
-                <input
+                <label className="block text-ink font-semibold mb-1">Custom Amount (UGX)</label>
+                <Input
                   type="number"
                   min="1000"
                   step="100"
@@ -289,42 +304,42 @@ export const BillingPortal: React.FC = () => {
                       setUseCustomAmount(true);
                     }
                   }}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
+                  className="font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Mobile Money Phone Number *</label>
+                <label className="block text-ink font-semibold mb-1">Mobile Money Phone Number *</label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
+                  <Phone className="w-4 h-4 text-muted absolute left-3 top-3 pointer-events-none" />
+                  <Input
                     type="text"
                     required
                     placeholder="e.g. +256770000000"
                     value={momoPhone}
                     onChange={(e) => setMomoPhone(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white"
+                    className="pl-9 font-mono"
                   />
                 </div>
               </div>
 
               {(selectedBundle || useCustomAmount) && (
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 space-y-1">
+                <div className="p-3 rounded-[10px] bg-paper border border-line text-[11px] text-ink space-y-1 font-mono">
                   {selectedBundle && (
                     <div className="flex items-center justify-between">
                       <span>Bundle:</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{selectedBundle.name} ({selectedBundle.sms_count} SMS)</span>
+                      <span className="font-bold text-ink">{selectedBundle.name} ({selectedBundle.sms_count} SMS)</span>
                     </div>
                   )}
                   {useCustomAmount && customAmount && (
                     <div className="flex items-center justify-between">
                       <span>Custom Amount:</span>
-                      <span className="font-bold text-blue-800 dark:text-blue-400">UGX {Number(customAmount).toLocaleString()}</span>
+                      <span className="font-bold text-primary">UGX {Number(customAmount).toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between">
                     <span>Total Amount:</span>
-                    <span className="font-bold text-blue-800 dark:text-blue-400">
+                    <span className="font-bold text-primary">
                       UGX {(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}
                     </span>
                   </div>
@@ -332,25 +347,29 @@ export const BillingPortal: React.FC = () => {
               )}
 
               <div className="space-y-2 pt-1">
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-md disabled:opacity-50 transition"
+                  variant="primary"
+                  fullWidth
+                  size="md"
                 >
                   {loading ? 'Processing Mobile Money...' : `Pay UGX ${(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}`}
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={handleInitiateCollection}
                   disabled={loading}
-                  className="w-full py-2.5 rounded-xl border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 font-bold text-xs hover:bg-blue-100 dark:hover:bg-blue-900 disabled:opacity-50 transition"
+                  variant="outline"
+                  fullWidth
+                  size="md"
                 >
                   ⚡ Start ioTec Collection Prompt
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 

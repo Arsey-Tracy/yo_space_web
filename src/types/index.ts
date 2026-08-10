@@ -114,3 +114,13 @@ export interface DashboardStats {
   recent_transactions?: WalletTransaction[];
 }
 
+
+export interface Contact {
+  full_name: string;
+  email: string;
+  phone_number: string;
+  organiation_type: string;
+  inquiry_type: string;
+  message: string;
+
+}

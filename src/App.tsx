@@ -156,10 +156,10 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
+      <div className="min-h-screen bg-paper flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-700 animate-pulse shadow-lg shadow-blue-700/20" />
-          <p className="text-slate-600 text-xs font-bold tracking-wide animate-pulse">
+          <div className="w-12 h-12 rounded-[10px] bg-primary animate-pulse shadow-lg" />
+          <p className="text-muted text-xs font-bold tracking-wide animate-pulse">
             Loading Yo-Spaces Engine...
           </p>
         </div>
@@ -170,7 +170,7 @@ const AppContent: React.FC = () => {
   const showDashboard = isAuthenticated && DASHBOARD_TABS.includes(activeTab as DashboardTab);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex font-sans selection:bg-blue-700 selection:text-white overflow-x-hidden transition-colors duration-200">
+    <div className="min-h-screen bg-paper text-ink flex font-sans selection:bg-primary selection:text-ink overflow-x-hidden transition-colors duration-200">
       
       {/* Authenticated Dashboard Layout with Sidebar */}
       {showDashboard ? (
@@ -189,8 +189,10 @@ const AppContent: React.FC = () => {
           {/* Mobile Sidebar Overlay Drawer */}
           {mobileSidebarOpen && (
             <div className="fixed inset-0 z-50 flex md:hidden">
-              <div
-                className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
+              <button
+                type="button"
+                aria-label="Close mobile sidebar drawer"
+                className="fixed inset-0 bg-ink/60 backdrop-blur-xs w-full h-full cursor-default border-none"
                 onClick={() => setMobileSidebarOpen(false)}
               />
               <div className="relative z-10">
@@ -205,7 +207,7 @@ const AppContent: React.FC = () => {
           )}
 
           {/* Main Dashboard Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-slate-50 dark:bg-slate-950">
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-paper">
             {/* Top Header Bar */}
             <TopHeader
               activeTab={activeTab}
