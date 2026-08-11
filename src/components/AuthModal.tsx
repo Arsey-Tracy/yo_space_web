@@ -156,13 +156,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, mode, onClose, onS
               )}
 
               <div>
-                <label className="block text-ink font-semibold mb-1">Username *</label>
+                <label className="block text-ink font-semibold mb-1">Username or Email *</label>
                 <div className="relative">
                   <User className="w-4 h-4 text-muted absolute left-3 top-3 z-10 pointer-events-none" />
                   <Input
                     type="text"
                     required
-                    placeholder="Username"
+                    placeholder="Username or email"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-9"

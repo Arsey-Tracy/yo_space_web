@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ContactPageProps {
 }
@@ -7,29 +7,49 @@ interface ContactPageProps {
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
+import { apiClient } from '../api/client';
 
 interface ContactPageProps {
 }
 
+const EMPTY_FORM = {
+  name: '',
+  email: '',
+  phone: '',
+  organization: '',
+  message: '',
+  inquiryType: 'general',
+};
+
 export const ContactPage: React.FC<ContactPageProps> = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    organization: '',
-    message: '',
-    inquiryType: 'general',
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+    try {
+      await apiClient.post('/api/contact/', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        organization: formData.organization,
+        inquiry_type: formData.inquiryType,
+        message: formData.message,
+      });
       setSubmitted(true);
-    }, 800);
+    } catch (err: any) {
+      const detail =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        'Something went wrong. Please try again.';
+      setError(detail);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,7 +130,8 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                   size="md"
                   onClick={() => {
                     setSubmitted(false);
-                    setFormData({ name: '', email: '', phone: '', organization: '', message: '', inquiryType: 'general' });
+                    setFormData(EMPTY_FORM);
+                    setError(null);
                   }}
                   className="mt-4"
                 >
@@ -208,6 +229,13 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
                     className="w-full px-3.5 py-2.5 rounded-[10px] border border-line text-sm bg-paper text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   />
                 </div>
+
+                {error && (
+                  <div className="flex items-start gap-2 p-3 rounded-[10px] bg-red-50 border border-red-200 text-red-700 text-sm">
+                    <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
 
                 <Button
                   type="submit"

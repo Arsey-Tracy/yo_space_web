@@ -53,7 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string) => {
-    const res = await apiClient.post('/auth/login/', { username, password });
+    // Normalize the identifier (trim + lowercase) before sending so that
+    // email/username casing differences don't cause a 401.
+    const res = await apiClient.post('/auth/login/', {
+      username: username.trim().toLowerCase(),
+      password,
+    });
     localStorage.setItem('access_token', res.data.access);
     localStorage.setItem('refresh_token', res.data.refresh);
     await fetchProfileAndOrg();
