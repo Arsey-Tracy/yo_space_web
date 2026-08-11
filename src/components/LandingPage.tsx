@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { PhoneCall, MessageSquare, Radio, Zap, ArrowRight, CheckCircle2, Globe, Building2, Calculator, Wallet, Coins } from 'lucide-react';
 import { PayAsYouGoModal } from './PayAsYouGoModal';
-
-interface LandingPageProps {
-  onOpenAuth: (mode: 'login' | 'register') => void;
-  onNavigate?: (tab: string) => void;
-}
-
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 
@@ -21,7 +15,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onNavigate
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col font-sans">
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 bg-ink text-paper overflow-hidden">
+      <section className="relative pt-20 pb-24 bg-ink text-paper overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[10px] bg-paper/10 border border-line/20 text-primary text-xs font-semibold mb-8">
