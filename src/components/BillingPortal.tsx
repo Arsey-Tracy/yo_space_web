@@ -62,7 +62,7 @@ export const BillingPortal: React.FC = () => {
     setLoading(true);
 
     const normalizedAmount = Number(customAmount);
-    const hasCustomAmount = useCustomAmount && Number.isFinite(normalizedAmount) && normalizedAmount > 0;
+    const hasCustomAmount = Number.isFinite(normalizedAmount) && normalizedAmount > 0;
     const hasBundle = !!selectedBundle;
 
     if (!hasCustomAmount && !hasBundle) {
@@ -73,14 +73,13 @@ export const BillingPortal: React.FC = () => {
 
     try {
       const payload: Record<string, any> = {
-        payment_method: 'Mobile Money (MTN / Airtel)',
-        payment_reference: momoPhone,
-        phone_number: momoPhone,
-        external_id: `yo-space-${organization?.id || 'anon'}-${selectedBundle?.id || 'custom'}-${Date.now()}`,
+        payment_method: 'mobile_money',
+        phone_number: momoPhone.trim().replace(/^\+/, ''),
+        external_id: `yo-space-${organization?.id ?? 'anon'}-${selectedBundle?.id ?? 'custom'}-${Date.now()}`,
       };
 
       if (hasCustomAmount) {
-        payload.custom_amount = normalizedAmount;
+        payload.amount = normalizedAmount;
       } else if (selectedBundle) {
         payload.bundle_id = selectedBundle.id;
       }
@@ -118,7 +117,7 @@ export const BillingPortal: React.FC = () => {
     }
 
     const normalizedAmount = Number(customAmount);
-    const hasCustomAmount = useCustomAmount && Number.isFinite(normalizedAmount) && normalizedAmount > 0;
+    const hasCustomAmount = Number.isFinite(normalizedAmount) && normalizedAmount > 0;
     const hasBundle = !!selectedBundle;
 
     if (!hasCustomAmount && !hasBundle) {
@@ -129,15 +128,20 @@ export const BillingPortal: React.FC = () => {
     setMsg(null);
     setLoading(true);
     try {
+      // Clean phone number (remove leading '+' and whitespace)
+      const cleanPhone = momoPhone.trim().replace(/^\+/, '');
+
+      // Build payload according to backend expectations
       const payload: Record<string, any> = {
-        payment_method: 'Mobile Money (MTN / Airtel)',
-        payment_reference: momoPhone,
-        phone_number: momoPhone,
-        external_id: `yo-space-${organization?.id || 'anon'}-${selectedBundle?.id || 'custom'}-${Date.now()}`,
+        // Use backend enum for payment method
+        payment_method: 'mobile_money',
+        phone_number: cleanPhone,
+        external_id: `yo-space-${organization?.id ?? 'anon'}-${selectedBundle?.id ?? 'custom'}-${Date.now()}`,
       };
 
       if (hasCustomAmount) {
-        payload.custom_amount = normalizedAmount;
+        // Backend expects 'amount' for a custom top‑up
+        payload.amount = normalizedAmount;
       } else if (selectedBundle) {
         payload.bundle_id = selectedBundle.id;
       }
@@ -146,7 +150,7 @@ export const BillingPortal: React.FC = () => {
       const providerStatus = res.data?.provider?.status || 'Pending';
       const externalId = res.data?.provider?.externalId || res.data?.purchase?.payment_reference || 'pending';
       setVerificationModal({
-        phoneNumber: momoPhone,
+        phoneNumber: cleanPhone,
         amount: hasCustomAmount ? normalizedAmount : Number(selectedBundle?.price || 0),
         reference: externalId,
         organizationName: organization?.name,

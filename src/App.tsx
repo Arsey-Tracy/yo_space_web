@@ -5,7 +5,9 @@ import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 import { LandingPage } from './components/LandingPage';
-import { AuthModal } from './components/AuthModal';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+// AuthModal removed in favor of routed pages
 import { DashboardOverview } from './components/DashboardOverview';
 import { SpaceManager } from './components/SpaceManager';
 import { BroadcastStudio } from './components/BroadcastStudio';
@@ -42,6 +44,8 @@ const PATH_ROUTE_MAP: Record<string, string> = {
   '/contact': 'contact',
   '/privacy': 'privacy',
   '/terms': 'terms',
+  '/login': 'login',
+  '/register': 'register',
 };
 
 const AppContent: React.FC = () => {
@@ -58,10 +62,7 @@ const AppContent: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'register' }>({
-    isOpen: false,
-    mode: 'login',
-  });
+  // Auth modal state removed; navigation handled via activeTab
 
   // Track Payment Verification Gate
   const [paymentVerificationGate, setPaymentVerificationGate] = useState<{
@@ -127,10 +128,9 @@ const AppContent: React.FC = () => {
 
   const handleTabChange = useCallback(
     (tab: string) => {
-      if (!isAuthenticated && DASHBOARD_TABS.includes(tab as DashboardTab)) {
-        setAuthModal({ isOpen: true, mode: 'login' });
+        // Redirect unauthenticated users to login or register page and update URL
+        navigateToTab(tab);
         return;
-      }
 
       // Check Payment Verification Gate for protected workspace routes
       if (isAuthenticated && DASHBOARD_TABS.includes(tab as DashboardTab)) {
@@ -254,7 +254,7 @@ const AppContent: React.FC = () => {
           <Navbar
             activeTab={activeTab}
             setActiveTab={handleTabChange}
-            onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })}
+            onOpenAuth={(mode) => navigateToTab(mode)}
           />
           <main className="flex-1">
             {activeTab === 'contact' ? (
@@ -263,20 +263,18 @@ const AppContent: React.FC = () => {
               <PrivacyPage />
             ) : activeTab === 'terms' ? (
               <TermsPage />
+            ) : activeTab === 'login' ? (
+              <LoginPage onNavigate={handleTabChange} />
+            ) : activeTab === 'register' ? (
+              <RegisterPage onNavigate={handleTabChange} />
             ) : (
-              <LandingPage onOpenAuth={(mode) => setAuthModal({ isOpen: true, mode })} onNavigate={handleTabChange} />
+              <LandingPage onOpenAuth={handleTabChange} onNavigate={handleTabChange} />
             )}
           </main>
         </div>
       )}
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={authModal.isOpen}
-        mode={authModal.mode}
-        onClose={() => setAuthModal({ ...authModal, isOpen: false })}
-        onSwitchMode={(mode) => setAuthModal({ isOpen: true, mode })}
-      />
+      {/* Auth Modal removed; login/register are routed pages */}
 
       {/* Payment Verification Access Gate */}
       {paymentVerificationGate && (

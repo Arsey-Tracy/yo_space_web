@@ -55,13 +55,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     // Normalize the identifier (trim + lowercase) before sending so that
     // email/username casing differences don't cause a 401.
-    const res = await apiClient.post('/auth/login/', {
-      username: username.trim().toLowerCase(),
-      password,
-    });
-    localStorage.setItem('access_token', res.data.access);
-    localStorage.setItem('refresh_token', res.data.refresh);
-    await fetchProfileAndOrg();
+    const normalized = username.trim().toLowerCase();
+    const payload: Record<string, string> = { password };
+    if (normalized.includes('@')) {
+      payload.email = normalized;
+    } else {
+      payload.username = normalized;
+    }
+    try {
+      const res = await apiClient.post('/auth/login/', payload);
+      localStorage.setItem('access_token', res.data.access);
+      localStorage.setItem('refresh_token', res.data.refresh);
+      // Ensure the interceptor uses the new token immediately
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${res.data.access}`;
+      await fetchProfileAndOrg();
+    } catch (err: any) {
+      // Throw a simplified error for UI consumption
+      const message = err?.response?.data?.detail || err.message || 'Login failed';
+      throw new Error(message);
+    }
   };
 
   const register = async (data: {
