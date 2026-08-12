@@ -78,11 +78,11 @@ export const BillingPortal: React.FC = () => {
         external_id: `yo-space-${organization?.id ?? 'anon'}-${selectedBundle?.id ?? 'custom'}-${Date.now()}`,
       };
 
-      if (hasCustomAmount) {
-        payload.amount = normalizedAmount;
-      } else if (selectedBundle) {
-        payload.bundle_id = selectedBundle.id;
-      }
+        if (hasCustomAmount) {
+          payload.custom_amount = normalizedAmount;
+        } else if (selectedBundle) {
+          payload.bundle_id = selectedBundle.id;
+        }
 
       const res = await apiClient.post('/billing/sms-bundles/purchase/', payload);
 
