@@ -1,27 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #12151C;
-  --color-paper: #EEF1F4;
+  --color-ink: #1C140C;
+  --color-paper: #FFF8F1;
   --color-card: #FFFFFF;
-  --color-primary: #E8A33D;
-  --color-success: #1F6F5C;
+  --color-primary: #F07A1A;
+  --color-primary-soft: #FFE4C8;
+  --color-success: #2F7A4F;
   --color-alert: #C1443C;
-  --color-muted: #6B7280;
-  --color-line: #DEE2E7;
+  --color-muted: #7A6858;
+  --color-line: #F0DDCA;
 
   --font-display: "Space Grotesk", sans-serif;
   --font-sans: "Inter", sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 
-  --radius: 10px;
+  --radius: 16px;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-card/80 backdrop-blur-xl border border-line;
+    border-radius: var(--radius);
+  }
+  .glass-card {
+    @apply bg-card border border-line shadow-sm;
+    border-radius: var(--radius);
+  }
+  .ys-glow {
+    background:
+      radial-gradient(1200px 480px at 12% -10%, rgba(240, 122, 26, 0.22), transparent 55%),
+      radial-gradient(900px 420px at 92% 0%, rgba(240, 122, 26, 0.12), transparent 50%),
+      var(--color-paper);
+  }
+  .ys-orange-wash {
+    background:
+      linear-gradient(180deg, #FFF8F1 0%, #FFE8D0 42%, #FFF8F1 100%);
+  }
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body {
-    @apply bg-paper text-ink antialiased selection:bg-primary selection:text-ink;
+    @apply bg-paper text-ink antialiased selection:bg-primary selection:text-white;
     font-family: var(--font-sans);
   }
 
@@ -30,18 +52,17 @@
   }
 }
 
-/* Executive B2B Card & Glassmorphism Utilities */
 .glass-panel {
-  background: var(--color-card);
-  backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--color-card) 88%, transparent);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--color-line);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 10px 30px -18px rgba(28, 20, 12, 0.28);
 }
 
 .glass-card {
   background: var(--color-card);
   border: 1px solid var(--color-line);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(28, 20, 12, 0.04), 0 12px 32px -24px rgba(240, 122, 26, 0.35);
 }
 
 .glass-input {
@@ -54,10 +75,9 @@
   border-color: var(--color-primary);
   background: var(--color-card);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(232, 163, 61, 0.2);
+  box-shadow: 0 0 0 4px rgba(240, 122, 26, 0.18);
 }
 
-/* Tab Panel Visibility */
 .tab-panel-active {
   display: block;
   animation: fadeIn 0.2s ease-out;
@@ -70,7 +90,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -79,5 +99,5 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.25s ease-out;
+  animation: fadeIn 0.28s ease-out;
 }

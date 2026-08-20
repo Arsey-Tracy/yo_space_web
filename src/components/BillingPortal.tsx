@@ -3,14 +3,13 @@ import { apiClient } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { SMSBundle } from '../types';
 import { Sparkles, Phone, CheckCircle2, AlertTriangle, X } from 'lucide-react';
-import { PaymentVerificationModal } from './PaymentVerificationModal';
 
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
 
 export const BillingPortal: React.FC = () => {
-  const { organization, refreshOrg } = useAuth();
+  const { user, organization, refreshOrg } = useAuth();
   // Subscription plans state removed for pay‑as‑you‑go model
   const [bundles, setBundles] = useState<SMSBundle[]>([]);
   
@@ -18,7 +17,9 @@ export const BillingPortal: React.FC = () => {
   const [selectedBundle, setSelectedBundle] = useState<SMSBundle | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [momoPhone, setMomoPhone] = useState('');
+  const [payerEmail, setPayerEmail] = useState('');
   const [useCustomAmount, setUseCustomAmount] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState<{ trackingId: string; redirectUrl: string } | null>(null);
   
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -54,7 +55,49 @@ export const BillingPortal: React.FC = () => {
 
   useEffect(() => {
     fetchBillingData();
+    if (user?.email && !payerEmail) {
+      setPayerEmail(user.email);
+    }
+  }, [user?.email]);
+
+  const verifyPesapalPayment = async (trackingId: string) => {
+    const res = await apiClient.post('/billing/pesapal/verify/', { tracking_id: trackingId });
+    const status = res.data?.payment?.status;
+    if (status === 'completed') {
+      setPendingPayment(null);
+      setIsTopUpOpen(false);
+      setMsg({ type: 'success', text: 'PesaPal payment confirmed. SMS credits have been added to your wallet.' });
+      refreshOrg();
+      fetchBillingData();
+      return true;
+    }
+    if (status === 'failed' || status === 'cancelled') {
+      setPendingPayment(null);
+      setMsg({ type: 'error', text: `Payment ${status}. You can try again from the wallet.` });
+      return true;
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const trackingFromReturn = params.get('OrderTrackingId') || params.get('tracking_id');
+    if (!trackingFromReturn) return;
+
+    setPendingPayment({ trackingId: trackingFromReturn, redirectUrl: '' });
+    setMsg({ type: 'success', text: 'Confirming your PesaPal payment…' });
+    verifyPesapalPayment(trackingFromReturn).catch(() => {
+      setMsg({ type: 'error', text: 'Could not confirm payment yet. We will keep checking.' });
+    });
   }, []);
+
+  useEffect(() => {
+    if (!pendingPayment?.trackingId) return;
+    const interval = window.setInterval(() => {
+      verifyPesapalPayment(pendingPayment.trackingId).catch(() => undefined);
+    }, 4000);
+    return () => window.clearInterval(interval);
+  }, [pendingPayment?.trackingId]);
 
   const handlePurchaseBundle = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,100 +113,42 @@ export const BillingPortal: React.FC = () => {
       setLoading(false);
       return;
     }
-
-    try {
-      const payload: Record<string, any> = {
-        payment_method: 'mobile_money',
-        phone_number: momoPhone.trim().replace(/^\+/, ''),
-        external_id: `yo-space-${organization?.id ?? 'anon'}-${selectedBundle?.id ?? 'custom'}-${Date.now()}`,
-      };
-
-        if (hasCustomAmount) {
-          payload.custom_amount = normalizedAmount;
-        } else if (selectedBundle) {
-          payload.bundle_id = selectedBundle.id;
-        }
-
-      const res = await apiClient.post('/billing/sms-bundles/purchase/', payload);
-
-      const providerStatus = res.data?.provider?.status || 'Pending';
-      setMsg({
-        type: 'success',
-        text: `Payment collection started. Provider status: ${providerStatus}. Credits will be applied after confirmation.`,
-      });
-      setIsTopUpOpen(false);
-      setCustomAmount('');
-      setUseCustomAmount(false);
-      refreshOrg();
-      fetchBillingData();
-    } catch (err: any) {
-      setMsg({ type: 'error', text: err.response?.data?.detail || 'Failed to process mobile money purchase.' });
-    } finally {
+    if (!momoPhone.trim()) {
+      setMsg({ type: 'error', text: 'Enter the phone number that will pay on PesaPal.' });
       setLoading(false);
-    }
-  };
-
-  const [verificationModal, setVerificationModal] = useState<{
-    phoneNumber: string;
-    amount: number;
-    reference: string;
-    organizationName?: string;
-  } | null>(null);
-
-  const handleInitiateCollection = async () => {
-    if (!momoPhone) {
-      setMsg({ type: 'error', text: 'Please enter a Mobile Money phone number to start the payment collection.' });
       return;
     }
 
-    const normalizedAmount = Number(customAmount);
-    const hasCustomAmount = Number.isFinite(normalizedAmount) && normalizedAmount > 0;
-    const hasBundle = !!selectedBundle;
-
-    if (!hasCustomAmount && !hasBundle) {
-      setMsg({ type: 'error', text: 'Please select a bundle or enter a custom top-up amount.' });
-      return;
-    }
-
-    setMsg(null);
-    setLoading(true);
     try {
-      // Clean phone number (remove leading '+' and whitespace)
-      const cleanPhone = momoPhone.trim().replace(/^\+/, '');
-
-      // Build payload according to backend expectations
       const payload: Record<string, any> = {
-        // Use backend enum for payment method
-        payment_method: 'mobile_money',
-        phone_number: cleanPhone,
-        external_id: `yo-space-${organization?.id ?? 'anon'}-${selectedBundle?.id ?? 'custom'}-${Date.now()}`,
+        phone_number: momoPhone.trim().replace(/^\+/, ''),
+        email: payerEmail || user?.email,
+        description: 'YoSpaces SMS credits',
       };
 
       if (hasCustomAmount) {
-        // Backend expects 'amount' for a custom top‑up
         payload.amount = normalizedAmount;
       } else if (selectedBundle) {
         payload.bundle_id = selectedBundle.id;
+        payload.amount = Number(selectedBundle.price);
       }
 
-      const res = await apiClient.post('/billing/sms-bundles/purchase/', payload);
-      const providerStatus = res.data?.provider?.status || 'Pending';
-      const externalId = res.data?.provider?.externalId || res.data?.purchase?.payment_reference || 'pending';
-      setVerificationModal({
-        phoneNumber: cleanPhone,
-        amount: hasCustomAmount ? normalizedAmount : Number(selectedBundle?.price || 0),
-        reference: externalId,
-        organizationName: organization?.name,
-      });
-      setMsg({ type: 'success', text: `Collection initiated. Provider status: ${providerStatus}.` });
-      setIsTopUpOpen(false);
-      setCustomAmount('');
-      setUseCustomAmount(false);
+      const res = await apiClient.post('/billing/pesapal/initiate/', payload);
+      const redirectUrl = res.data?.redirect_url;
+      const trackingId = res.data?.tracking_id;
+
+      if (!redirectUrl || !trackingId) {
+        setMsg({ type: 'error', text: res.data?.detail || 'PesaPal did not return a payment URL.' });
+        return;
+      }
+
+      setPendingPayment({ trackingId, redirectUrl });
+      setMsg({ type: 'success', text: 'Redirecting to PesaPal. Complete payment with Mobile Money or card, then return here.' });
+      window.open(redirectUrl, 'PesaPal Payment', 'width=800,height=700');
     } catch (err: any) {
-      setMsg({
-        type: 'error',
-        text: err.response?.data?.detail || err.response?.data?.message || 'Failed to initiate ioTec collection.'
-      });
+      const detail = err.response?.data?.detail;
+      const fallback = typeof detail === 'string' ? detail : 'Failed to start PesaPal payment.';
+      setMsg({ type: 'error', text: fallback });
     } finally {
       setLoading(false);
     }
@@ -188,9 +173,9 @@ export const BillingPortal: React.FC = () => {
       )}
 
       {/* Current Plan & SMS Credit Summary Banner */}
-      <Card className="p-6 sm:p-8 rounded-[10px] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-line shadow-xs">
+      <Card className="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-[linear-gradient(135deg,#fff_0%,#ffe8d0_100%)]">
         <div>
-          <span className="px-2.5 py-1 rounded-[10px] bg-paper text-primary text-[11px] font-semibold border border-line">
+          <span className="px-2.5 py-1 rounded-full bg-white/80 text-primary text-[11px] font-semibold border border-line">
             Pay-As-You-Go Model (Zero Expiring Credits)
           </span>
           <h2 className="text-2xl font-display font-extrabold text-ink mt-2">Prepaid Wallet & SMS Balance</h2>
@@ -205,7 +190,7 @@ export const BillingPortal: React.FC = () => {
           onClick={() => setIsTopUpOpen(true)}
           className="shrink-0"
         >
-          <Sparkles className="w-4 h-4" /> Top Up Wallet (Mobile Money)
+          <Sparkles className="w-4 h-4" /> Top Up Wallet (PesaPal)
         </Button>
       </Card>
 
@@ -213,7 +198,7 @@ export const BillingPortal: React.FC = () => {
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-display font-bold text-ink">Pay-As-You-Go Top-Up Packs</h3>
-          <p className="text-xs text-muted">Top up credits anytime via MTN Mobile Money or Airtel Money. All rates calculated transparently from final selling prices.</p>
+          <p className="text-xs text-muted">Top up credits anytime via PesaPal (MTN, Airtel, or card). Credits are added after payment is confirmed.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -226,7 +211,7 @@ export const BillingPortal: React.FC = () => {
                     UGX {Number(b.price_per_sms).toFixed(0)}/SMS
                   </span>
                 </div>
-                <p className="text-2xl font-display font-extrabold text-primary mt-2 font-mono">{b.sms_count.toLocaleString()} SMS</p>
+                <p className="text-2xl font-display font-extrabold text-primary mt-2">{b.sms_count.toLocaleString()} SMS</p>
                 <p className="text-xs text-muted font-mono font-semibold mt-1">UGX {Number(b.price).toLocaleString()}</p>
               </div>
 
@@ -262,7 +247,7 @@ export const BillingPortal: React.FC = () => {
             </Button>
 
             <h3 className="text-lg font-display font-bold text-ink">Top Up SMS Credits</h3>
-            <p className="text-xs text-muted">Instant Mobile Money payment (MTN / Airtel Uganda)</p>
+            <p className="text-xs text-muted">Pay with PesaPal — Mobile Money or card. Credits appear after confirmation.</p>
 
             <form onSubmit={handlePurchaseBundle} className="space-y-4 text-xs">
               <div>
@@ -313,7 +298,7 @@ export const BillingPortal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-ink font-semibold mb-1">Mobile Money Phone Number *</label>
+                <label className="block text-ink font-semibold mb-1">PesaPal Phone Number *</label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-muted absolute left-3 top-3 pointer-events-none" />
                   <Input
@@ -325,6 +310,17 @@ export const BillingPortal: React.FC = () => {
                     className="pl-9 font-mono"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-ink font-semibold mb-1">Email *</label>
+                <Input
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  value={payerEmail}
+                  onChange={(e) => setPayerEmail(e.target.value)}
+                />
               </div>
 
               {(selectedBundle || useCustomAmount) && (
@@ -358,37 +354,26 @@ export const BillingPortal: React.FC = () => {
                   fullWidth
                   size="md"
                 >
-                  {loading ? 'Processing Mobile Money...' : `Pay UGX ${(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}`}
+                  {loading ? 'Opening PesaPal...' : `Pay with PesaPal — UGX ${(useCustomAmount && customAmount ? Number(customAmount) : Number(selectedBundle?.price || 0)).toLocaleString()}`}
                 </Button>
-
-                <Button
-                  type="button"
-                  onClick={handleInitiateCollection}
-                  disabled={loading}
-                  variant="outline"
-                  fullWidth
-                  size="md"
-                >
-                  ⚡ Start ioTec Collection Prompt
-                </Button>
+                {pendingPayment?.redirectUrl && (
+                  <Button
+                    type="button"
+                    onClick={() => window.open(pendingPayment.redirectUrl, 'PesaPal Payment', 'width=800,height=700')}
+                    variant="outline"
+                    fullWidth
+                    size="md"
+                  >
+                    Re-open PesaPal payment page
+                  </Button>
+                )}
+                {pendingPayment && (
+                  <p className="text-[11px] text-muted text-center">Waiting for PesaPal confirmation. This page updates automatically.</p>
+                )}
               </div>
             </form>
           </Card>
         </div>
-      )}
-
-      {verificationModal && (
-        <PaymentVerificationModal
-          isOpen={!!verificationModal}
-          paymentDetails={verificationModal}
-          onComplete={() => {
-            setVerificationModal(null);
-            setMsg({ type: 'success', text: 'Payment verified successfully!' });
-            refreshOrg();
-            fetchBillingData();
-          }}
-          onCancel={() => setVerificationModal(null)}
-        />
       )}
 
     </div>

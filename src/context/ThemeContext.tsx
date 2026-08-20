@@ -1,46 +1,46 @@
-import React, { createContext, useContext, useState, useLayoutEffect } from 'react';
+// src/context/ThemeContext.tsx
+import React, { createContext, useState, useContext, type ReactNode, useMemo } from 'react';
 
-type Theme = 'light' | 'dark';
-
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
+// Define the shape of the theme context
+export interface ThemeContextType {
+    theme: 'light' | 'dark';
+    toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+// Create the context with an undefined default (will be provided by ThemeProvider)
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+// Props for the provider component
+interface ThemeProviderProps {
+    children: ReactNode;
+}
 
-  useLayoutEffect(() => {
-    if (typeof document === 'undefined') return;
+/**
+ * ThemeProvider – supplies a light/dark theme toggle via React context.
+ * It updates the HTML root element's class list so that global CSS can react
+ * to the current theme.
+ */
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-    localStorage.setItem('theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.colorScheme = theme;
-  }, [theme]);
+    const toggleTheme = () => {
+        setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+    };
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+    // Keep the <html> element class in sync for CSS selectors
+    useMemo(() => {
+        const root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(theme);
+    }, [theme]);
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+    const value = useMemo(() => ({ theme, toggleTheme }), [theme]);
+
+    return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
+    const ctx = useContext(ThemeContext);
+    if (!ctx) throw new Error('useTheme must be used within ThemeProvider');
+    return ctx;
 };

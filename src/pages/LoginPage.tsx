@@ -21,7 +21,7 @@ export const LoginPage: React.FC<Props> = ({ onNavigate }) => {
     setLoading(true);
     try {
       await login(username, password);
-      onNavigate('landing');
+      onNavigate('dashboard');
     } catch (err: any) {
       setError(err?.message || 'Authentication failed. Please check your credentials.');
     } finally {
@@ -30,8 +30,8 @@ export const LoginPage: React.FC<Props> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center">
-      <div className="w-full max-w-md p-6 bg-paper border border-line rounded-[10px] shadow-2xl">
+    <div className="min-h-[calc(100vh-4rem)] ys-glow flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md p-8 bg-card border border-line rounded-3xl shadow-[0_24px_60px_-32px_rgba(240,122,26,0.45)]">
         <Button
           variant="ghost"
           size="sm"

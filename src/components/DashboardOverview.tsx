@@ -1,82 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { apiClient } from '../api/client';
-import type { DashboardStats } from '../types';
+import React from 'react';
+import { useDashboardStats } from '../features/dashboard/hooks';
 import { Users, Radio, MessageSquare, Sparkles, Plus, Send, AlertTriangle, ArrowUpRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 
-interface DashboardOverviewProps {
-  onNavigate: (tab: string) => void;
-}
+interface DashboardOverviewProps { onNavigate: (tab: string) => void }
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate }) => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { data: stats, isLoading, error } = useDashboardStats();
+  const shouldReduce = useReducedMotion();
 
-  const fetchStats = async () => {
-    try {
-      const res = await apiClient.get<DashboardStats>('/dashboard/stats/');
-      setStats(res.data);
-    } catch (err) {
-      console.error('Failed to fetch dashboard stats', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="py-20 text-center text-muted text-sm font-medium">
-        Loading organization metrics...
+      <div className="space-y-6 animate-pulse">
+        <div className="h-36 rounded-3xl bg-card border border-line" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-32 rounded-3xl bg-card border border-line" />
+          ))}
+        </div>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-20 text-center">
+        <div className="text-alert text-sm font-medium mb-4">Failed to load dashboard</div>
+        <p className="text-muted text-xs mb-6">{error instanceof Error ? error.message : 'Unknown error'}</p>
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          Reload Page
+        </Button>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="py-20 text-center text-muted text-sm">No dashboard data available</div>
     );
   }
 
   const isLowBalance = (stats?.sms_balance ?? 0) <= 50;
 
   return (
-    <div className="space-y-8 font-sans text-ink">
-      
-      {/* Top Welcome Banner */}
-      <Card className="p-6 sm:p-8 rounded-[10px] border-line shadow-xs relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <motion.div
+      className="space-y-8 font-sans text-ink"
+      initial={{ opacity: 0, y: shouldReduce ? 0 : 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22 }}
+    >
+      <Card className="p-6 sm:p-8 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[linear-gradient(135deg,#fff_0%,#ffe8d0_100%)]">
         <div className="relative z-10">
-          <span className="px-2.5 py-1 rounded-[10px] bg-paper text-success text-[11px] font-semibold border border-line">
-            Pay-As-You-Go (PAYG) Active
+          <span className="px-2.5 py-1 rounded-full bg-white/80 text-primary text-[11px] font-semibold border border-line">
+            Pay as you go
           </span>
-          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-ink mt-2">
-            {stats?.organization} Dashboard
+          <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-ink mt-3">
+            Welcome back, {stats?.organization}
           </h1>
-          <p className="text-xs sm:text-sm text-muted mt-1">
-            Pass communications smoothly across your 2G spaces through Voice, SMS, and USSD.
+          <p className="text-sm text-muted mt-1 max-w-xl">
+            Send SMS, host voice spaces, and run surveys from one place. Credits sit in your prepaid wallet.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => onNavigate('broadcasts')}
-          >
+          <Button variant="primary" size="md" onClick={() => onNavigate('broadcasts')}>
             <Send className="w-4 h-4" /> Send Broadcast
           </Button>
-          <Button
-            variant="outline"
-            size="md"
-            onClick={() => onNavigate('spaces')}
-          >
+          <Button variant="outline" size="md" onClick={() => onNavigate('spaces')}>
             <Plus className="w-4 h-4" /> Add Space
           </Button>
         </div>
       </Card>
 
-      {/* Low Balance Alert Banner */}
       {isLowBalance && (
-        <div className="p-4 rounded-[10px] bg-paper border border-line text-alert text-xs flex items-center justify-between gap-4">
+        <div className="p-4 rounded-3xl bg-primary-soft border border-line text-alert text-sm flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-alert shrink-0" />
             <div>
@@ -84,23 +84,17 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
               <p className="text-[11px] text-muted">Top up your prepaid wallet to ensure broadcast SMS messages deliver uninterrupted.</p>
             </div>
           </div>
-          <Button
-            variant="alert"
-            size="sm"
-            onClick={() => onNavigate('billing')}
-          >
+          <Button variant="alert" size="sm" onClick={() => onNavigate('billing')}>
             Top Up Wallet
           </Button>
         </div>
       )}
 
-      {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Spaces */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Spaces</span>
-            <div className="p-2 rounded-[10px] bg-paper text-primary border border-line">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Spaces</span>
+            <div className="p-2 rounded-2xl bg-primary-soft text-primary">
               <Radio className="w-4 h-4" />
             </div>
           </div>
@@ -114,11 +108,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           </div>
         </Card>
 
-        {/* Total Members */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Members</span>
-            <div className="p-2 rounded-[10px] bg-paper text-success border border-line">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Members</span>
+            <div className="p-2 rounded-2xl bg-primary-soft text-primary">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -132,15 +125,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           </div>
         </Card>
 
-        {/* SMS Credit Balance */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted uppercase tracking-wider">SMS Balance</span>
-            <div className="p-2 rounded-[10px] bg-paper text-primary border border-line">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">SMS wallet</span>
+            <div className="p-2 rounded-2xl bg-primary-soft text-primary">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-3xl font-display font-extrabold text-primary mt-3 font-mono">
+          <p className="text-3xl font-display font-extrabold text-primary mt-3">
             {stats?.sms_balance.toLocaleString()} <span className="text-xs font-sans font-normal text-muted">SMS</span>
           </p>
           <div className="mt-3 flex items-center justify-between text-[11px]">
@@ -156,11 +148,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           </div>
         </Card>
 
-        {/* Broadcasts Sent */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs">
+        <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Broadcasts (Month)</span>
-            <div className="p-2 rounded-[10px] bg-paper text-primary border border-line">
+            <span className="text-xs font-semibold text-muted uppercase tracking-wider">Broadcasts this month</span>
+            <div className="p-2 rounded-2xl bg-primary-soft text-primary">
               <MessageSquare className="w-4 h-4" />
             </div>
           </div>
@@ -175,55 +166,51 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </Card>
       </div>
 
-      {/* Quick Action Hub & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Quick Actions */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs space-y-4">
-          <h3 className="font-display font-bold text-ink text-base mb-2">Quick Actions</h3>
+        <Card className="p-6 space-y-3">
+          <h3 className="font-display font-bold text-ink text-base mb-1">Do this next</h3>
 
-          <Button variant="primary" size="md" onClick={() => onNavigate('broadcasts')}>
-  <div className="flex items-center gap-3">
-    <div className="p-2.5 rounded-[10px] bg-card text-primary border border-line group-hover:bg-primary group-hover:text-ink transition-colors">
-      <Send className="w-5 h-5" />
-    </div>
-    <div>
-      <p className="font-bold text-ink text-xs">Send Broadcast SMS</p>
-      <p className="text-[11px] text-muted">Notify all space members immediately</p>
-    </div>
-  </div>
-  <ArrowUpRight className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />
-</Button>
+          <button type="button" onClick={() => onNavigate('broadcasts')} className="w-full text-left p-3.5 rounded-2xl border border-line bg-paper hover:border-primary hover:bg-primary-soft/50 transition flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-card text-primary">
+                <Send className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-ink text-sm">Send a broadcast</p>
+                <p className="text-xs text-muted">SMS every member in a space</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-primary" />
+          </button>
 
-          <Button variant="outline" size="md" onClick={() => onNavigate('spaces')}>
-  <div className="flex items-center gap-3">
-    <div className="p-2.5 rounded-[10px] bg-card text-success border border-line group-hover:bg-primary group-hover:text-ink transition-colors">
-      <Users className="w-5 h-5" />
-    </div>
-    <div>
-      <p className="font-bold text-ink text-xs">Import Members (CSV)</p>
-      <p className="text-[11px] text-muted">Bulk upload contacts from Excel/CSV</p>
-    </div>
-  </div>
-  <ArrowUpRight className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />
-</Button>
+          <button type="button" onClick={() => onNavigate('spaces')} className="w-full text-left p-3.5 rounded-2xl border border-line bg-paper hover:border-primary hover:bg-primary-soft/50 transition flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-card text-primary">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-ink text-sm">Import members</p>
+                <p className="text-xs text-muted">CSV / Excel into a space</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-primary" />
+          </button>
 
-<Button variant="primary" size="md" onClick={() => onNavigate('surveys')}>
-  <div className="flex items-center gap-3">
-    <div className="p-2.5 rounded-[10px] bg-card text-primary border border-line group-hover:bg-primary group-hover:text-ink transition-colors">
-      <Radio className="w-5 h-5" />
-    </div>
-    <div>
-      <p className="font-bold text-ink text-xs">Create USSD Survey</p>
-      <p className="text-[11px] text-muted">Collect real-time poll feedback</p>
-    </div>
-  </div>
-  <ArrowUpRight className="w-4 h-4 text-muted group-hover:text-primary transition-colors" />
-</Button>
+          <button type="button" onClick={() => onNavigate('surveys')} className="w-full text-left p-3.5 rounded-2xl border border-line bg-paper hover:border-primary hover:bg-primary-soft/50 transition flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-card text-primary">
+                <Radio className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-ink text-sm">Create a USSD survey</p>
+                <p className="text-xs text-muted">Collect answers without data</p>
+              </div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-primary" />
+          </button>
         </Card>
 
-        {/* Recent Broadcast Activity */}
-        <Card className="p-6 rounded-[10px] border-line shadow-xs lg:col-span-2 space-y-4">
+        <Card className="p-6 lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-display font-bold text-ink text-base">Recent Broadcast Activity</h3>
             <button onClick={() => onNavigate('broadcasts')} className="text-xs text-primary font-semibold hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded">
@@ -237,31 +224,38 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             </div>
           ) : (
             <div className="space-y-3">
-              {(Array.isArray(stats?.recent_broadcasts) ? stats.recent_broadcasts : []).map((b) => (
-                <div key={b.id} className="p-4 rounded-[10px] bg-paper border border-line flex items-start justify-between gap-4 text-xs">
+              {(Array.isArray(stats?.recent_broadcasts) ? stats.recent_broadcasts : []).map((b: {
+                id?: number | string;
+                space_name?: string;
+                status?: string;
+                message?: string;
+                created_at?: string;
+                recipients_count?: number;
+                cost_credits?: number;
+              }) => (
+                <div key={b.id ?? `${b.space_name ?? 'broadcast'}-${b.created_at ?? Date.now()}`} className="p-4 rounded-2xl bg-paper border border-line flex items-start justify-between gap-4 text-sm">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-ink">{b.space_name}</span>
-                      <span className={`px-2 py-0.5 rounded-[10px] text-[10px] font-semibold border border-line ${
+                      <span className="font-bold text-ink">{b.space_name ?? 'Broadcast'}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border border-line ${
                         b.status === 'sent' ? 'bg-paper text-success' : 'bg-paper text-muted'
                       }`}>
-                        {b.status}
+                        {b.status ?? 'queued'}
                       </span>
                     </div>
-                    <p className="text-ink line-clamp-2">{b.message}</p>
-                    <p className="text-[10px] text-muted font-mono">{new Date(b.created_at).toLocaleString()}</p>
+                    <p className="text-ink line-clamp-2">{b.message ?? ''}</p>
+                    <p className="text-[10px] text-muted font-mono">{b.created_at ? new Date(b.created_at).toLocaleString() : 'Recently'}</p>
                   </div>
                   <div className="text-right shrink-0 font-mono">
-                    <p className="font-bold text-primary">{b.recipients_count} SMS</p>
-                    <p className="text-[10px] text-muted">{b.cost_credits} Credits</p>
+                    <p className="font-bold text-primary">{b.recipients_count ?? 0} SMS</p>
+                    <p className="text-[10px] text-muted">{b.cost_credits ?? 0} Credits</p>
                   </div>
                 </div>
               ))}
             </div>
           )}
         </Card>
-
       </div>
-    </div>
+    </motion.div>
   );
 };

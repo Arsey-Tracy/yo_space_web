@@ -25,7 +25,7 @@ export const RegisterPage: React.FC<Props> = ({ onNavigate }) => {
     setError('');
     setLoading(true);
     try {
-      const res = await register({
+      await register({
         username,
         email,
         password,
@@ -34,7 +34,7 @@ export const RegisterPage: React.FC<Props> = ({ onNavigate }) => {
         default_language: defaultLanguage,
         trigger_test_payment: triggerPayment,
       });
-      onNavigate('landing');
+      onNavigate('dashboard');
     } catch (err: any) {
       let msg = '';
       if (!err.response) {
@@ -66,8 +66,8 @@ export const RegisterPage: React.FC<Props> = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center">
-      <div className="w-full max-w-md p-6 bg-paper border border-line rounded-[10px] shadow-2xl">
+    <div className="min-h-[calc(100vh-4rem)] ys-glow flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md p-8 bg-card border border-line rounded-3xl shadow-[0_24px_60px_-32px_rgba(240,122,26,0.45)]">
         <Button
           variant="ghost"
           size="sm"

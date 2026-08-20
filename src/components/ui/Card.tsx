@@ -8,15 +8,15 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', children, ...props }, ref) => {
     const variants = {
-      default: 'bg-card text-ink border border-line shadow-xs',
-      paper: 'bg-paper text-ink border border-line shadow-xs',
-      ink: 'bg-ink text-card border border-ink shadow-sm',
+      default: 'bg-card text-ink border border-line shadow-[0_12px_40px_-28px_rgba(28,20,12,0.35)]',
+      paper: 'bg-paper text-ink border border-line',
+      ink: 'bg-ink text-card border-ink shadow-sm',
     };
 
     return (
       <div
         ref={ref}
-        className={cn('rounded-[10px] transition-colors', variants[variant], className)}
+        className={cn('rounded-3xl transition-all duration-200', variants[variant], className)}
         {...props}
       >
         {children}
@@ -46,7 +46,7 @@ CardTitle.displayName = 'CardTitle';
 
 export const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => (
-    <p ref={ref} className={cn('text-xs text-muted font-sans', className)} {...props}>
+    <p ref={ref} className={cn('text-sm text-muted font-sans', className)} {...props}>
       {children}
     </p>
   )

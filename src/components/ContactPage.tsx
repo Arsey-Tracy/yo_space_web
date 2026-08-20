@@ -53,18 +53,17 @@ export const ContactPage: React.FC<ContactPageProps> = () => {
   };
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans">
-      {/* Hero Header */}
-      <section className="bg-ink text-paper py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-[10px] bg-paper/10 border border-line/20 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
-            <MessageSquare className="w-3.5 h-3.5" /> 24/7 Enterprise Support
+    <div className="min-h-screen ys-glow text-ink font-sans">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto text-center">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-soft border border-line text-primary text-xs font-semibold uppercase tracking-wider mb-4">
+            <MessageSquare className="w-3.5 h-3.5" /> Support
           </span>
-          <h1 className="text-3xl sm:text-5xl font-display font-extrabold tracking-tight text-card mb-4">
-            Get in Touch with <span className="text-primary">Yo-Spaces</span>
+          <h1 className="text-3xl sm:text-5xl font-display font-extrabold tracking-tight text-ink mb-4">
+            Talk to the YoSpaces team
           </h1>
-          <p className="text-paper/90 text-base sm:text-lg max-w-2xl mx-auto font-normal">
-            Have questions about enterprise deployments, custom SMS sender IDs, or integrating 2G Voice & USSD into your organization? We’re here to help.
+          <p className="text-muted text-base sm:text-lg max-w-2xl mx-auto">
+            Questions about SMS, voice spaces, USSD, or your wallet? Send a note — we reply from Kampala.
           </p>
         </div>
       </section>

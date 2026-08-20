@@ -44,6 +44,10 @@ const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
     title: 'Wallet & Pay-As-You-Go Billing',
     subtitle: 'Manage prepaid wallet balance, view SMS rates, and top up via Mobile Money',
   },
+  settings: {
+    title: 'Organization Settings',
+    subtitle: 'Update business preferences, defaults, and notification behavior',
+  },
 };
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -87,14 +91,14 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-card border-b border-line px-3 sm:px-6 lg:px-8 flex items-center justify-between shadow-xs transition-colors">
+    <header className="sticky top-0 z-20 h-16 bg-card/80 backdrop-blur-xl border-b border-line px-3 sm:px-6 lg:px-8 flex items-center justify-between">
 
       {/* Left: Mobile Toggle & Page Title */}
       <div className="flex items-center gap-3 min-w-0">
         {onToggleMobileSidebar && (
           <button
             onClick={onToggleMobileSidebar}
-            className="md:hidden p-2 rounded-[8px] text-muted hover:text-ink hover:bg-paper border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="md:hidden p-2 rounded-xl text-muted hover:text-ink hover:bg-primary-soft border border-line"
             aria-label="Open sidebar menu"
           >
             <Menu className="w-5 h-5" />
@@ -117,7 +121,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {/* Dark / Light Theme Toggle Switch */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-[10px] bg-paper border border-line text-ink hover:bg-line/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="p-2 rounded-2xl bg-paper border border-line text-ink hover:bg-primary-soft transition"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           aria-label="Toggle theme"
         >
@@ -132,7 +136,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="relative hidden sm:block">
           <button
             onClick={() => setLangDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-paper hover:bg-line/40 border border-line text-xs font-semibold text-ink transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-paper hover:bg-primary-soft border border-line text-xs font-semibold text-ink transition"
             title="Choose Delivery Language"
           >
             <Globe className="w-3.5 h-3.5 text-primary" />
@@ -141,7 +145,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {langDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-[14px] bg-card border border-line shadow-xl p-2 z-50 animate-fadeIn max-h-64 overflow-y-auto">
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-card border border-line shadow-xl p-2 z-50 animate-fadeIn max-h-64 overflow-y-auto">
               <p className="px-3 py-1 text-[10px] font-bold text-muted uppercase tracking-wider">
                 African & Regional Languages
               </p>
@@ -172,7 +176,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {organization && (
           <div
             onClick={() => onNavigate('billing')}
-            className="cursor-pointer flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-[10px] bg-paper border border-line hover:border-primary transition-all shadow-xs group"
+            className="cursor-pointer flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-primary-soft border border-line hover:border-primary transition-all group"
           >
             <Sparkles className="w-4 h-4 text-primary animate-pulse shrink-0" />
             <div className="text-xs">
@@ -187,9 +191,9 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-[10px] bg-paper border border-line hover:bg-line/40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center gap-2.5 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-paper border border-line hover:bg-primary-soft transition"
           >
-            <div className="w-8 h-8 rounded-[8px] bg-primary text-ink font-extrabold text-xs flex items-center justify-center shadow-xs">
+            <div className="w-8 h-8 rounded-xl bg-primary text-white font-extrabold text-xs flex items-center justify-center">
               {getInitials(user?.username || organization?.name)}
             </div>
 
@@ -206,7 +210,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-[14px] bg-card border border-line shadow-2xl p-2 z-50 animate-fadeIn">
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-card border border-line shadow-2xl p-2 z-50 animate-fadeIn">
 
               <div className="p-3 border-b border-line mb-1">
                 <p className="text-xs font-bold text-ink flex items-center gap-1.5">

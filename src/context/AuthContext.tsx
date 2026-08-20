@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('access');
     if (token) {
       fetchProfileAndOrg();
     } else {
@@ -52,26 +52,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  useEffect(() => {
+    const handler = () => {
+      // ensure local cleanup
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
+      setUser(null);
+      setOrganization(null);
+    };
+    window.addEventListener('auth:logout', handler);
+    return () => window.removeEventListener('auth:logout', handler);
+  }, []);
+
   const login = async (username: string, password: string) => {
-    // Normalize the identifier (trim + lowercase) before sending so that
-    // email/username casing differences don't cause a 401.
-    const normalized = username.trim().toLowerCase();
-    const payload: Record<string, string> = { password };
-    if (normalized.includes('@')) {
-      payload.email = normalized;
-    } else {
-      payload.username = normalized;
-    }
+    const normalized = username.trim();
+    const payload = {
+      identifier: normalized,
+      password,
+    };
+
     try {
       const res = await apiClient.post('/auth/login/', payload);
-      localStorage.setItem('access_token', res.data.access);
-      localStorage.setItem('refresh_token', res.data.refresh);
-      // Ensure the interceptor uses the new token immediately
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${res.data.access}`;
+      const access = res.data.tokens?.access || res.data.access;
+      const refresh = res.data.tokens?.refresh || res.data.refresh;
+
+      if (access) localStorage.setItem('access', access);
+      if (refresh) localStorage.setItem('refresh', refresh);
+      if (access) {
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+      }
+
       await fetchProfileAndOrg();
     } catch (err: any) {
-      // Throw a simplified error for UI consumption
-      const message = err?.response?.data?.detail || err.message || 'Login failed';
+      const detail = err?.response?.data;
+      let message = 'Login failed';
+
+      if (typeof detail === 'string') message = detail;
+      else if (detail?.detail) message = detail.detail;
+      else if (detail?.non_field_errors?.[0]) message = detail.non_field_errors[0];
+      else if (detail?.error) message = detail.error;
+      else if (err?.message) message = err.message;
+
       throw new Error(message);
     }
   };
@@ -86,18 +107,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     trigger_test_payment?: boolean;
   }) => {
     const res = await apiClient.post('/auth/register/', data);
-    localStorage.setItem('access_token', res.data.tokens.access);
-    localStorage.setItem('refresh_token', res.data.tokens.refresh);
+    const access = res.data.tokens?.access;
+    const refresh = res.data.tokens?.refresh;
+    if (access) localStorage.setItem('access', access);
+    if (refresh) localStorage.setItem('refresh', refresh);
     setUser(res.data.user);
     setOrganization(res.data.organization);
     return res.data;
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
     setUser(null);
     setOrganization(null);
+    try { delete apiClient.defaults.headers.common['Authorization']; } catch {}
   };
 
   const refreshOrg = async () => {
